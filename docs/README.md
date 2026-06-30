@@ -32,6 +32,10 @@ Whether you're:
 **📖 Documentation Note**: While the repository contains a 'docs' folder, always refer to the [GitBook](https://ogp-international.gitbook.io/ogp-international-hub/self-hosting/formsg) for the most current self-hosting guidance. We plan to sync GitBook content to the repository periodically as snapshots, but currently the repository docs are not actively updated.
 {% endhint %}
 
+For an engineering-focused map of this repository's applications, packages, services,
+tooling, and extension points, see the standalone
+[Technical Wiki](technical-wiki.html).
+
 <details>
 
 <summary><strong>What is FormSG?</strong></summary>

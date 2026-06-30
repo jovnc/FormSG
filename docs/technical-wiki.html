@@ -1,0 +1,1994 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FormSG Technical Wiki</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f9fc;
+        --surface: #ffffff;
+        --surface-alt: #f0f4fa;
+        --surface-code: #111827;
+        --border: #d8e0ed;
+        --border-strong: #b8c4d6;
+        --text: #111827;
+        --muted: #5f6b7a;
+        --muted-strong: #374151;
+        --brand: #2563eb;
+        --brand-dark: #1d4ed8;
+        --brand-soft: #dbeafe;
+        --green: #047857;
+        --green-soft: #d1fae5;
+        --orange: #b45309;
+        --orange-soft: #ffedd5;
+        --purple: #6d28d9;
+        --purple-soft: #ede9fe;
+        --red: #b91c1c;
+        --red-soft: #fee2e2;
+        --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        --radius: 14px;
+        --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        line-height: 1.58;
+      }
+
+      a {
+        color: var(--brand);
+        text-decoration: none;
+      }
+
+      a:hover {
+        color: var(--brand-dark);
+        text-decoration: underline;
+      }
+
+      code,
+      kbd,
+      pre {
+        font-family: var(--mono);
+      }
+
+      code {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface-alt);
+        color: #0f172a;
+        padding: 0.08rem 0.3rem;
+        font-size: 0.88em;
+      }
+
+      pre {
+        overflow-x: auto;
+        margin: 1rem 0 0;
+        border-radius: 12px;
+        background: var(--surface-code);
+        color: #e5e7eb;
+        padding: 1rem;
+        font-size: 0.86rem;
+      }
+
+      pre code {
+        border: 0;
+        background: transparent;
+        color: inherit;
+        padding: 0;
+      }
+
+      .app-shell {
+        display: grid;
+        grid-template-columns: 300px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        border-right: 1px solid var(--border);
+        background: #0f172a;
+        color: #dbeafe;
+        padding: 1.25rem 1rem 2rem;
+      }
+
+      .sidebar a {
+        color: #c7d2fe;
+      }
+
+      .sidebar a:hover {
+        color: #ffffff;
+      }
+
+      .brand-block {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+        padding: 0.5rem;
+      }
+
+      .logo-mark {
+        display: inline-grid;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #60a5fa, #8b5cf6);
+        color: #fff;
+        font-weight: 800;
+      }
+
+      .brand-block strong {
+        display: block;
+        color: #fff;
+        font-size: 1.05rem;
+      }
+
+      .brand-block span {
+        display: block;
+        color: #93a4bd;
+        font-size: 0.82rem;
+      }
+
+      .nav-group {
+        margin: 1rem 0;
+      }
+
+      .nav-group h2 {
+        margin: 1.4rem 0 0.5rem;
+        color: #93a4bd;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .nav-group ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .nav-group li {
+        margin: 0.12rem 0;
+      }
+
+      .nav-group a {
+        display: block;
+        border-radius: 9px;
+        padding: 0.45rem 0.6rem;
+        font-size: 0.9rem;
+      }
+
+      .nav-group a:hover {
+        background: rgba(96, 165, 250, 0.16);
+        text-decoration: none;
+      }
+
+      .content {
+        min-width: 0;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        border-bottom: 1px solid var(--border);
+        background:
+          radial-gradient(circle at top right, rgba(37, 99, 235, 0.18), transparent 32rem),
+          linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+        padding: 4rem min(7vw, 5.5rem) 3rem;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0 0 1rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: #fff;
+        color: var(--muted-strong);
+        padding: 0.3rem 0.75rem;
+        font-size: 0.86rem;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+      }
+
+      .hero h1 {
+        max-width: 980px;
+        margin: 0;
+        color: #0f172a;
+        font-size: clamp(2.4rem, 5vw, 5rem);
+        line-height: 0.98;
+        letter-spacing: -0.06em;
+      }
+
+      .hero p {
+        max-width: 850px;
+        margin: 1.25rem 0 0;
+        color: var(--muted);
+        font-size: 1.15rem;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        padding: 0.55rem 1rem;
+        font-weight: 700;
+      }
+
+      .button.primary {
+        background: var(--brand);
+        color: #fff;
+      }
+
+      .button.secondary {
+        border-color: var(--border-strong);
+        background: #fff;
+        color: var(--muted-strong);
+      }
+
+      main {
+        padding: 2rem min(7vw, 5.5rem) 5rem;
+      }
+
+      section {
+        scroll-margin-top: 1rem;
+        margin: 0 0 2.25rem;
+      }
+
+      .section-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+        padding: 1.5rem;
+      }
+
+      .section-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      h2,
+      h3,
+      h4 {
+        color: #0f172a;
+        line-height: 1.2;
+      }
+
+      h2 {
+        margin: 0 0 0.5rem;
+        font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+        letter-spacing: -0.03em;
+      }
+
+      h3 {
+        margin: 1.25rem 0 0.5rem;
+        font-size: 1.18rem;
+      }
+
+      h4 {
+        margin: 1rem 0 0.35rem;
+        font-size: 1rem;
+      }
+
+      p {
+        margin: 0.5rem 0;
+      }
+
+      .lede {
+        color: var(--muted);
+        font-size: 1rem;
+      }
+
+      .grid {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .grid.four {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .mini-card {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #fff;
+        padding: 1rem;
+      }
+
+      .mini-card h3,
+      .mini-card h4 {
+        margin-top: 0;
+      }
+
+      .mini-card p {
+        color: var(--muted);
+      }
+
+      .stat {
+        border-radius: 12px;
+        background: var(--surface-alt);
+        padding: 1rem;
+      }
+
+      .stat strong {
+        display: block;
+        color: #0f172a;
+        font-size: 1.35rem;
+        line-height: 1.1;
+      }
+
+      .stat span {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin: 0.75rem 0 0;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        background: var(--brand-soft);
+        color: #1e40af;
+        padding: 0.22rem 0.58rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+      }
+
+      .pill.green {
+        background: var(--green-soft);
+        color: var(--green);
+      }
+
+      .pill.orange {
+        background: var(--orange-soft);
+        color: var(--orange);
+      }
+
+      .pill.purple {
+        background: var(--purple-soft);
+        color: var(--purple);
+      }
+
+      .pill.red {
+        background: var(--red-soft);
+        color: var(--red);
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        margin-top: 0.9rem;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+        font-size: 0.92rem;
+      }
+
+      th,
+      td {
+        vertical-align: top;
+        border-bottom: 1px solid var(--border);
+        padding: 0.75rem 0.85rem;
+        text-align: left;
+      }
+
+      th {
+        background: #f8fafc;
+        color: #334155;
+        font-size: 0.76rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .callout {
+        border: 1px solid #bfdbfe;
+        border-radius: 12px;
+        background: #eff6ff;
+        padding: 1rem;
+      }
+
+      .callout.warning {
+        border-color: #fed7aa;
+        background: #fff7ed;
+      }
+
+      .callout.success {
+        border-color: #bbf7d0;
+        background: #f0fdf4;
+      }
+
+      .path {
+        word-break: break-word;
+      }
+
+      .timeline {
+        display: grid;
+        gap: 0.75rem;
+        counter-reset: step;
+        margin-top: 0.75rem;
+      }
+
+      .step {
+        position: relative;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #fff;
+        padding: 0.9rem 1rem 0.9rem 3.25rem;
+      }
+
+      .step::before {
+        counter-increment: step;
+        content: counter(step);
+        position: absolute;
+        top: 0.9rem;
+        left: 1rem;
+        display: grid;
+        width: 1.55rem;
+        height: 1.55rem;
+        place-items: center;
+        border-radius: 999px;
+        background: var(--brand);
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 800;
+      }
+
+      .diagram {
+        display: grid;
+        gap: 0.7rem;
+        margin-top: 1rem;
+      }
+
+      .diagram-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.7rem;
+        align-items: stretch;
+      }
+
+      .diagram-node {
+        flex: 1 1 180px;
+        min-height: 72px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #fff;
+        padding: 0.85rem;
+      }
+
+      .diagram-node strong {
+        display: block;
+        color: #0f172a;
+      }
+
+      .diagram-node span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+
+      .arrow-label {
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .footer {
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        padding: 1.5rem min(7vw, 5.5rem);
+      }
+
+      @media (max-width: 1050px) {
+        .app-shell {
+          display: block;
+        }
+
+        .sidebar {
+          position: relative;
+          height: auto;
+          max-height: none;
+          border-right: 0;
+          border-bottom: 1px solid var(--border);
+        }
+
+        .nav-group ul {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 0.15rem;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .hero,
+        main {
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+
+        .grid.two,
+        .grid.three,
+        .grid.four {
+          grid-template-columns: 1fr;
+        }
+
+        .nav-group ul {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Technical wiki navigation">
+        <div class="brand-block">
+          <span class="logo-mark">FS</span>
+          <div>
+            <strong>FormSG Wiki</strong>
+            <span>Technical documentation</span>
+          </div>
+        </div>
+
+        <nav>
+          <div class="nav-group">
+            <h2>Start here</h2>
+            <ul>
+              <li><a href="#overview">Overview</a></li>
+              <li><a href="#repo-map">Repository map</a></li>
+              <li><a href="#architecture">Architecture</a></li>
+              <li><a href="#runtime">Runtime model</a></li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <h2>Applications</h2>
+            <ul>
+              <li><a href="#frontend">Frontend app</a></li>
+              <li><a href="#backend">Backend API</a></li>
+              <li><a href="#shared-packages">Shared packages</a></li>
+              <li><a href="#services">Serverless services</a></li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <h2>Core domains</h2>
+            <ul>
+              <li><a href="#forms-submissions">Forms and submissions</a></li>
+              <li><a href="#auth">Auth and access</a></li>
+              <li><a href="#payments">Payments</a></li>
+              <li><a href="#integrations">Integrations</a></li>
+            </ul>
+          </div>
+          <div class="nav-group">
+            <h2>Developers</h2>
+            <ul>
+              <li><a href="#development">Local development</a></li>
+              <li><a href="#testing">Testing</a></li>
+              <li><a href="#ci-cd">CI/CD</a></li>
+              <li><a href="#extension-guides">Extension guides</a></li>
+              <li><a href="#file-index">File index</a></li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+
+      <div class="content">
+        <header class="hero">
+          <div class="eyebrow">Generated from repository exploration - June 30, 2026</div>
+          <h1>FormSG technical wiki for engineers and platform teams.</h1>
+          <p>
+            A codebase-oriented map of the FormSG monorepo: application architecture,
+            domain modules, shared contracts, integrations, local tooling, CI/CD, and
+            common extension paths.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#architecture">Explore architecture</a>
+            <a class="button secondary" href="#development">Run locally</a>
+            <a class="button secondary" href="#extension-guides">Extend safely</a>
+          </div>
+        </header>
+
+        <main>
+          <section id="overview" class="section-card">
+            <div class="section-heading">
+              <div>
+                <h2>Overview</h2>
+                <p class="lede">
+                  FormSG is a government form builder for creating public forms,
+                  collecting responses securely, authenticating respondents, and
+                  managing submissions, payments, webhooks, and operational reporting.
+                </p>
+              </div>
+            </div>
+
+            <div class="grid four">
+              <div class="stat">
+                <strong>pnpm monorepo</strong>
+                <span><code>apps/*</code>, <code>packages/*</code>, <code>services/*</code></span>
+              </div>
+              <div class="stat">
+                <strong>Node 22+</strong>
+                <span><code>engines.node &gt;=22.22</code>, pnpm 10.30.3</span>
+              </div>
+              <div class="stat">
+                <strong>React + Express</strong>
+                <span>Vite SPA served by an Express API in production</span>
+              </div>
+              <div class="stat">
+                <strong>MongoDB</strong>
+                <span>Mongoose models with encrypted storage-mode submissions</span>
+              </div>
+            </div>
+
+            <div class="grid three" style="margin-top: 1rem">
+              <article class="mini-card">
+                <h3>Primary apps</h3>
+                <p>
+                  <code>apps/frontend</code> is the React admin/respondent SPA.
+                  <code>apps/backend</code> is the Express API, session host, SPA server,
+                  and integration gateway.
+                </p>
+              </article>
+              <article class="mini-card">
+                <h3>Shared contract layer</h3>
+                <p>
+                  <code>packages/shared</code> defines domain types, constants, validators,
+                  feature flag keys, logic helpers, and response-mode projections.
+                </p>
+              </article>
+              <article class="mini-card">
+                <h3>Independent services</h3>
+                <p>
+                  Lambda-style services handle GuardDuty virus scanning, PDF generation,
+                  and Stripe payment reconciliation outside the main API process.
+                </p>
+              </article>
+            </div>
+
+            <div class="callout" style="margin-top: 1rem">
+              <strong>How to use this wiki:</strong> start with the architecture and
+              runtime sections, then jump to the app or domain area you are changing.
+              The <a href="#extension-guides">extension guides</a> list the files that
+              usually change together for common workstreams.
+            </div>
+          </section>
+
+          <section id="repo-map" class="section-card">
+            <h2>Repository map</h2>
+            <p class="lede">
+              The workspace is intentionally organized by deployable app, reusable package,
+              sidecar service, and operational documentation.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Path</th>
+                    <th>Package / role</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="path"><code>apps/frontend</code></td>
+                    <td><code>formsg-frontend</code></td>
+                    <td>React 18, Vite, Chakra UI, React Router, React Query, Zustand, Storybook, Vitest.</td>
+                  </tr>
+                  <tr>
+                    <td class="path"><code>apps/backend</code></td>
+                    <td><code>formsg-backend</code></td>
+                    <td>Express API, Mongoose persistence, session auth, API routes, mail/SMS/payment integrations.</td>
+                  </tr>
+                  <tr>
+                    <td class="path"><code>packages/shared</code></td>
+                    <td><code>formsg-shared</code></td>
+                    <td>Shared TypeScript types, constants, validators, domain utilities, logic helpers.</td>
+                  </tr>
+                  <tr>
+                    <td class="path"><code>packages/sdk</code></td>
+                    <td><code>@opengovsg/formsg-sdk</code></td>
+                    <td>Published SDK for webhook verification, encryption/decryption, verified content, v3/v4 adapters.</td>
+                  </tr>
+                  <tr>
+                    <td class="path"><code>packages/react-email-preview</code></td>
+                    <td><code>formsg-react-email-preview</code></td>
+                    <td>Developer preview environment for React Email templates.</td>
+                  </tr>
+                  <tr>
+                    <td class="path"><code>services/virus-scanner-guardduty</code></td>
+                    <td>GuardDuty scanner Lambda</td>
+                    <td>Processes S3 malware scan results and promotes/rejects uploaded attachments.</td>
+                  </tr>
+                  <tr>
+                    <td class="path"><code>services/pdf-gen-sparticuz</code></td>
+                    <td>PDF Lambda</td>
+                    <td>Converts HTML to PDF with Puppeteer and Sparticuz Chromium.</td>
+                  </tr>
+                  <tr>
+                    <td class="path"><code>services/form-payment-reconciliation</code></td>
+                    <td>Payment cron Lambda</td>
+                    <td>Scheduled reconciliation for incomplete Stripe payments.</td>
+                  </tr>
+                  <tr>
+                    <td class="path"><code>__tests__/e2e</code></td>
+                    <td>Playwright tests</td>
+                    <td>Login and encrypted submission browser flows across Chromium and Firefox.</td>
+                  </tr>
+                  <tr>
+                    <td class="path"><code>docs</code></td>
+                    <td>Self-hosting docs and agent docs</td>
+                    <td>GitBook is canonical for self-hosting; this file is the engineering wiki snapshot.</td>
+                  </tr>
+                  <tr>
+                    <td class="path"><code>scripts</code></td>
+                    <td>One-off migrations</td>
+                    <td>Dated MongoDB migration folders, usually executed manually against target databases.</td>
+                  </tr>
+                  <tr>
+                    <td class="path"><code>deploy</code></td>
+                    <td>Deployment templates</td>
+                    <td>ECS task definition and related production deployment metadata.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <pre><code>/workspace
+|-- apps/
+|   |-- backend/              Express API and SPA server
+|   `-- frontend/             React/Vite SPA
+|-- packages/
+|   |-- shared/               Cross-app domain contract
+|   |-- sdk/                  Public FormSG JavaScript SDK
+|   `-- react-email-preview/  Email preview tool
+|-- services/                 Lambda and cron workloads
+|-- __tests__/e2e/            Playwright flows
+|-- scripts/                  Dated MongoDB migrations
+`-- docs/                     Self-hosting docs plus this wiki</code></pre>
+          </section>
+
+          <section id="architecture" class="section-card">
+            <h2>Architecture</h2>
+            <p class="lede">
+              FormSG follows a contract-first monorepo architecture. Shared domain
+              contracts are consumed by the frontend, backend, SDK, and supporting services,
+              while integration adapters stay close to the backend or their owning service.
+            </p>
+
+            <div class="diagram" aria-label="Dependency graph">
+              <div class="diagram-row">
+                <div class="diagram-node">
+                  <strong>React SPA</strong>
+                  <span><code>apps/frontend</code>, Vite, Chakra UI, field renderer, admin builder</span>
+                </div>
+                <div class="diagram-node">
+                  <strong>Express API</strong>
+                  <span><code>apps/backend</code>, routes, controllers, services, Mongoose models</span>
+                </div>
+              </div>
+              <div class="arrow-label">Both apps consume shared contracts and SDK functionality</div>
+              <div class="diagram-row">
+                <div class="diagram-node">
+                  <strong>formsg-shared</strong>
+                  <span>Types, constants, validators, field definitions, logic, payment helpers</span>
+                </div>
+                <div class="diagram-node">
+                  <strong>FormSG SDK</strong>
+                  <span>Webhook signatures, submission decryption, verified field signatures</span>
+                </div>
+                <div class="diagram-node">
+                  <strong>Sidecar services</strong>
+                  <span>PDF generation, virus scanning, payment reconciliation</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid two" style="margin-top: 1rem">
+              <article class="mini-card">
+                <h3>Request lifecycle</h3>
+                <div class="timeline">
+                  <div class="step"><strong>Bootstrap</strong><br />Backend starts at <code>apps/backend/src/app/server.ts</code>, loads Datadog, MongoDB, AWS clients, Stripe, and Express.</div>
+                  <div class="step"><strong>Middleware</strong><br />Express applies parsers, sessions, helmet, compression, request IDs, rate limits, logging, static assets, and routes.</div>
+                  <div class="step"><strong>Routing</strong><br /><code>/api/v3</code> requests enter versioned routers; public APIs use <code>/api/public/v1</code>; frontend fallback serves the SPA.</div>
+                  <div class="step"><strong>Domain logic</strong><br />Controllers delegate to services, services use Mongoose and external adapters, and errors flow through typed mappings.</div>
+                </div>
+              </article>
+
+              <article class="mini-card">
+                <h3>Frontend lifecycle</h3>
+                <div class="timeline">
+                  <div class="step"><strong>HTML shell</strong><br /><code>apps/frontend/index.html</code> mounts <code>#root</code> and loads the app and Datadog chunk.</div>
+                  <div class="step"><strong>Bootstrap</strong><br /><code>src/index.tsx</code> initializes polyfills, i18n, dayjs, optional MSW, and renders <code>&lt;App /&gt;</code>.</div>
+                  <div class="step"><strong>Providers</strong><br /><code>App.tsx</code> wires React Query, Chakra, Auth, GrowthBook, Helmet, and Turnstile providers.</div>
+                  <div class="step"><strong>Routes</strong><br /><code>AppRouter.tsx</code> creates route trees for public forms, admin forms, login, dashboard, billing, and static pages.</div>
+                </div>
+              </article>
+            </div>
+
+            <h3>Design principles visible in the code</h3>
+            <div class="grid three">
+              <div class="mini-card">
+                <h4>Single domain contract</h4>
+                <p>Field types, form DTOs, payment enums, and validators are centralized in <code>packages/shared</code>.</p>
+              </div>
+              <div class="mini-card">
+                <h4>Feature modules over layers</h4>
+                <p>Frontend and backend group most logic by domain feature, with route/controller/service boundaries on the backend.</p>
+              </div>
+              <div class="mini-card">
+                <h4>Adapter boundary</h4>
+                <p>Stripe, AWS, identity providers, email, SMS, captcha, and analytics are isolated behind backend modules or service packages.</p>
+              </div>
+              <div class="mini-card">
+                <h4>Response mode branching</h4>
+                <p>Email, storage, and multirespondent forms have distinct projections, validation paths, and submission flows.</p>
+              </div>
+              <div class="mini-card">
+                <h4>Build-time plus runtime config</h4>
+                <p>Vite builds the frontend, while the backend injects runtime <code>window.__ENV__</code> values into the served SPA.</p>
+              </div>
+              <div class="mini-card">
+                <h4>Plain pnpm orchestration</h4>
+                <p>No Turbo or Nx; root scripts coordinate workspace builds, tests, lint, Docker, and sidecar dev services.</p>
+              </div>
+            </div>
+          </section>
+
+          <section id="runtime" class="section-card">
+            <h2>Runtime model</h2>
+            <p class="lede">
+              Local development runs a Vite frontend, backend container, MongoDB, LocalStack,
+              MailDev, MockPass, Stripe CLI, PDF Lambda emulator, and virus scanner emulator.
+              Production serves compiled frontend assets from the backend.
+            </p>
+
+            <div class="grid two">
+              <article class="mini-card">
+                <h3>Development</h3>
+                <pre><code>pnpm install
+pnpm dev</code></pre>
+                <p>
+                  The root <code>dev</code> script runs <code>docker-compose up</code>,
+                  <code>pnpm dev:frontend</code>, <code>pnpm dev:virus-scanner-guardduty</code>,
+                  and <code>pnpm dev:pdf-gen</code> concurrently.
+                </p>
+                <div class="pill-row">
+                  <span class="pill">Frontend :5173</span>
+                  <span class="pill green">Backend :5001</span>
+                  <span class="pill orange">MailDev :1080</span>
+                  <span class="pill purple">LocalStack :4566</span>
+                </div>
+              </article>
+
+              <article class="mini-card">
+                <h3>Production</h3>
+                <pre><code>pnpm build
+pnpm start</code></pre>
+                <p>
+                  <code>pnpm build</code> cleans and builds SDK, shared, frontend, and backend.
+                  The backend serves <code>apps/frontend/dist</code> assets and injects runtime
+                  configuration into <code>index.html</code>.
+                </p>
+                <div class="pill-row">
+                  <span class="pill">ECS-ready Dockerfile</span>
+                  <span class="pill green">Port 4545</span>
+                  <span class="pill orange">AWS SSM secrets</span>
+                </div>
+              </article>
+            </div>
+
+            <h3>Configuration flow</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Layer</th>
+                    <th>Files</th>
+                    <th>Responsibility</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Backend config</td>
+                    <td><code>apps/backend/src/app/config/config.ts</code>, <code>schema.ts</code>, <code>features/*.config.ts</code></td>
+                    <td>Convict validation, AWS clients, mail, DB, feature-specific env slices.</td>
+                  </tr>
+                  <tr>
+                    <td>Frontend runtime config</td>
+                    <td><code>apps/frontend/src/env.ts</code>, <code>modules/frontend/frontend.service.ts</code></td>
+                    <td>Reads <code>window.__ENV__</code> or Vite env vars; backend injects client-safe settings.</td>
+                  </tr>
+                  <tr>
+                    <td>Local defaults</td>
+                    <td><code>docker-compose.yml</code>, <code>.env.example</code>, <code>apps/backend/__tests__/setup/.test-env</code></td>
+                    <td>Development/test values for MongoDB, LocalStack, identity mocks, Stripe, mail, and feature flags.</td>
+                  </tr>
+                  <tr>
+                    <td>Deployment</td>
+                    <td><code>deploy/ecs-task-definition.json</code>, <code>Dockerfile.production</code>, GitHub Actions deploy workflows</td>
+                    <td>Container runtime, secrets mapping, image build, and ECS deployment.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="frontend" class="section-card">
+            <h2>Frontend app</h2>
+            <p class="lede">
+              <code>apps/frontend</code> is a React 18 SPA built with Vite. It powers the public
+              respondent form experience, the admin dashboard, form builder, settings, responses,
+              billing, auth pages, and static landing/legal pages.
+            </p>
+
+            <div class="grid three">
+              <div class="mini-card">
+                <h3>Framework stack</h3>
+                <p>React 18, Vite 5, TypeScript, Chakra UI, Emotion, React Router 6, React Query 3, React Hook Form, Zustand.</p>
+              </div>
+              <div class="mini-card">
+                <h3>Product capabilities</h3>
+                <p>Admin builder, public form renderer, storage response decryption, payment forms, MyInfo, verified fields, status tracker.</p>
+              </div>
+              <div class="mini-card">
+                <h3>Developer tooling</h3>
+                <p>Vitest, Storybook 8, MSW handlers, Testing Library, Datadog chunk, GrowthBook, Chakra token generation.</p>
+              </div>
+            </div>
+
+            <h3>Entry points and shell</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>File</th>
+                    <th>Role</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>apps/frontend/index.html</code></td>
+                    <td>HTML shell; loads app entry and a separate Datadog bundle.</td>
+                  </tr>
+                  <tr>
+                    <td><code>apps/frontend/src/index.tsx</code></td>
+                    <td>Initializes polyfills, i18n, dayjs, optional MSW, analytics, and React root.</td>
+                  </tr>
+                  <tr>
+                    <td><code>apps/frontend/src/app/App.tsx</code></td>
+                    <td>Root providers: React Query, Chakra, Auth, GrowthBook, Helmet, Turnstile.</td>
+                  </tr>
+                  <tr>
+                    <td><code>apps/frontend/src/app/AppRouter.tsx</code></td>
+                    <td>Route tree with public/private guards and lazy-loaded route components.</td>
+                  </tr>
+                  <tr>
+                    <td><code>apps/frontend/src/services/ApiService.ts</code></td>
+                    <td>Axios client with credentials, base URL, 401 handling, Turnstile challenge handling, error transforms.</td>
+                  </tr>
+                  <tr>
+                    <td><code>apps/frontend/src/env.ts</code></td>
+                    <td>Client runtime env contract, sourced from server-injected <code>window.__ENV__</code> or Vite env.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>Feature module map</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Feature</th>
+                    <th>Path</th>
+                    <th>Responsibility</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Admin form</td>
+                    <td><code>src/features/admin-form</code></td>
+                    <td>Builder, design, logic, workflow, settings, responses, preview, templates, admin layout.</td>
+                  </tr>
+                  <tr>
+                    <td>Public form</td>
+                    <td><code>src/features/public-form</code></td>
+                    <td>Respondent form loading, field rendering, submission, payment, status tracker, edit mode.</td>
+                  </tr>
+                  <tr>
+                    <td>Workspace</td>
+                    <td><code>src/features/workspace</code></td>
+                    <td>Dashboard, form list, workspace grouping, create/duplicate/delete form flows.</td>
+                  </tr>
+                  <tr>
+                    <td>Login</td>
+                    <td><code>src/features/login</code></td>
+                    <td>OTP, SSO, sgID, WOG AD, select-profile, and forwarding flows.</td>
+                  </tr>
+                  <tr>
+                    <td>User</td>
+                    <td><code>src/features/user</code></td>
+                    <td>Profile, billing, emergency contact, ownership transfer, account-facing settings.</td>
+                  </tr>
+                  <tr>
+                    <td>Logic, MyInfo, verified fields</td>
+                    <td><code>src/features/logic</code>, <code>myinfo</code>, <code>verifiable-fields</code></td>
+                    <td>Conditional logic evaluation, MyInfo augmentation, OTP-verifiable email/mobile fields.</td>
+                  </tr>
+                  <tr>
+                    <td>Cross-cutting</td>
+                    <td><code>env</code>, <code>feature-flags</code>, <code>analytics</code>, <code>turnstile</code></td>
+                    <td>Runtime config, GrowthBook/backend feature flags, analytics events, bot challenge overlay.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>Routing</h3>
+            <p>
+              Routes are declared in <code>AppRouter.tsx</code> and route constants live in
+              <code>src/constants/routes.ts</code>. Guards include <code>PrivateElement</code>,
+              <code>PublicElement</code>, <code>ParamIdValidator</code>, and
+              <code>HashRouterElement</code> for legacy Angular hash URLs.
+            </p>
+            <div class="grid two">
+              <div class="mini-card">
+                <h4>Public routes</h4>
+                <p><code>/</code>, <code>/payments</code>, <code>/:formId</code>, <code>/:formId/payment/:paymentId</code>, <code>/:formId/edit/:submissionId</code>, <code>/:formId/status/:submissionId</code>.</p>
+              </div>
+              <div class="mini-card">
+                <h4>Private routes</h4>
+                <p><code>/dashboard</code>, <code>/billing</code>, <code>/admin/form/:formId</code>, settings, responses, preview, templates, and nested admin pages.</p>
+              </div>
+            </div>
+
+            <h3>State and data</h3>
+            <div class="grid three">
+              <div class="mini-card">
+                <h4>Server state</h4>
+                <p>React Query v3. Feature modules expose <code>queries.ts</code> and <code>mutations.ts</code> with query keys and typed service calls.</p>
+              </div>
+              <div class="mini-card">
+                <h4>Local builder state</h4>
+                <p>Zustand stores manage selected field, design, dirty-state tracking, payments, Magic Form Builder, end page, logic, and workflow state.</p>
+              </div>
+              <div class="mini-card">
+                <h4>Form state</h4>
+                <p>React Hook Form powers public form filling and many admin/login settings forms through feature-specific providers.</p>
+              </div>
+            </div>
+
+            <h3>Public field rendering pipeline</h3>
+            <pre><code>PublicFormPage
+`-- PublicFormProvider
+    `-- FormSectionsProvider
+        `-- PublicFormWrapper
+            `-- FormFieldsContainer
+                `-- VisibleFormFields
+                    `-- FieldFactory
+                        `-- templates/Field/&lt;FieldType&gt;</code></pre>
+
+            <h3>Frontend extension points</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Change</th>
+                    <th>Likely files</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>New route</td>
+                    <td><code>src/constants/routes.ts</code>, <code>src/app/AppRouter.tsx</code>, page/feature component</td>
+                    <td>Choose guard, lazy load heavy pages, add MSW/story coverage when API-backed.</td>
+                  </tr>
+                  <tr>
+                    <td>New API integration</td>
+                    <td>Feature <code>*Service.ts</code>, <code>queries.ts</code>/<code>mutations.ts</code>, MSW handlers</td>
+                    <td>Use central <code>ApiService</code> and shared DTOs from <code>formsg-shared</code>.</td>
+                  </tr>
+                  <tr>
+                    <td>Design-system component</td>
+                    <td><code>src/components/&lt;Name&gt;</code>, <code>src/theme/components</code>, stories/tests</td>
+                    <td>Prefer Chakra theme integration and Storybook examples.</td>
+                  </tr>
+                  <tr>
+                    <td>New field renderer</td>
+                    <td><code>templates/Field</code>, <code>FieldFactory.tsx</code>, builder edit panels, shared field type</td>
+                    <td>Requires backend validation and shared type updates; see <a href="#extension-guides">extension guides</a>.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="backend" class="section-card">
+            <h2>Backend API</h2>
+            <p class="lede">
+              <code>apps/backend</code> is an Express 4 application using TypeScript,
+              Mongoose, sessions, Convict configuration, neverthrow error flows,
+              Datadog observability, and integration adapters for government identity,
+              AWS, Stripe, email, SMS, feature flags, and AI assistance.
+            </p>
+
+            <div class="grid three">
+              <div class="mini-card">
+                <h3>Framework stack</h3>
+                <p>Express, Mongoose 7, connect-mongo, celebrate/Joi, EJS, helmet, compression, express-rate-limit.</p>
+              </div>
+              <div class="mini-card">
+                <h3>Error and observability</h3>
+                <p><code>ApplicationError</code>, <code>neverthrow</code>, Datadog APM, winston logging, StatsD metrics, custom error codes.</p>
+              </div>
+              <div class="mini-card">
+                <h3>Integrations</h3>
+                <p>AWS S3/SQS/Lambda/SES, Stripe, SingPass/CorpPass, MyInfo, sgID, SSO, WOG AD, Postman SMS, Turnstile, GrowthBook.</p>
+              </div>
+            </div>
+
+            <h3>Boot sequence</h3>
+            <pre><code>server.ts
+`-- loaders/index.ts
+    |-- loaders/mongoose.ts
+    `-- loaders/express/index.ts
+        |-- middleware stack
+        |-- /api routes
+        |-- static frontend assets
+        `-- global error handlers</code></pre>
+
+            <h3>Backend source layout</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Path</th>
+                    <th>Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>src/app/config</code></td>
+                    <td>Convict schemas, logger, AWS/mail/DB configuration, feature config slices.</td>
+                  </tr>
+                  <tr>
+                    <td><code>src/app/loaders</code></td>
+                    <td>Startup orchestration for MongoDB, Express, Datadog, Stripe, sessions, static assets.</td>
+                  </tr>
+                  <tr>
+                    <td><code>src/app/routes</code></td>
+                    <td>Express router wiring for versioned APIs and integration callbacks.</td>
+                  </tr>
+                  <tr>
+                    <td><code>src/app/modules</code></td>
+                    <td>Domain controllers, services, middlewares, errors, and feature business logic.</td>
+                  </tr>
+                  <tr>
+                    <td><code>src/app/models</code></td>
+                    <td>Mongoose model factories and field sub-schemas.</td>
+                  </tr>
+                  <tr>
+                    <td><code>src/app/services</code></td>
+                    <td>Cross-cutting adapters such as mail, SMS, captcha, and Turnstile.</td>
+                  </tr>
+                  <tr>
+                    <td><code>src/app/utils</code></td>
+                    <td>S3 helpers, field validation bridge, hashing, PDF conversion, signature rendering, Mongo error transforms.</td>
+                  </tr>
+                  <tr>
+                    <td><code>src/app/views</code></td>
+                    <td>EJS and React Email templates used by backend mail/rendering flows.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>API surface</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Mount</th>
+                    <th>Router</th>
+                    <th>Primary responsibility</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>/api/v3/admin</code></td>
+                    <td><code>routes/api/v3/admin</code></td>
+                    <td>Authenticated admin form CRUD, settings, collaborators, submissions, feedback, payments, workspaces, AI assistance.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/api/v3/forms</code></td>
+                    <td><code>routes/api/v3/forms</code></td>
+                    <td>Public form load, submit, verification, edit, and respondent-facing actions.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/api/v3/auth</code></td>
+                    <td><code>routes/api/v3/auth</code></td>
+                    <td>Email OTP, session status, sgID admin auth, SSO, and WOG AD flows.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/api/v3/payments</code></td>
+                    <td><code>routes/api/v3/payments</code></td>
+                    <td>Stripe Connect, payment intents, receipts, webhooks, and reconciliation endpoints.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/api/v3/client</code></td>
+                    <td><code>routes/api/v3/client</code></td>
+                    <td>Client-safe environment values consumed by the frontend.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/api/public/v1</code></td>
+                    <td><code>routes/api/public/v1</code></td>
+                    <td>Bearer-token public API for forms, encrypted submissions, and webhook settings.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/sgid</code>, <code>/myinfo</code>, <code>/sp/.well-known</code></td>
+                    <td>Integration routers</td>
+                    <td>Identity provider callbacks and SingPass/CorpPass OIDC JWKS endpoints.</td>
+                  </tr>
+                  <tr>
+                    <td><code>/</code></td>
+                    <td><code>modules/frontend/frontend.routes.ts</code></td>
+                    <td>React SPA fallback, Open Graph metadata, runtime env injection, static assets.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>Domain modules</h3>
+            <div class="grid three">
+              <div class="mini-card">
+                <h4>Forms</h4>
+                <p><code>modules/form</code> contains shared form services, admin form services, public form services, settings, logic, payments, templates, issues, and AI assistance.</p>
+              </div>
+              <div class="mini-card">
+                <h4>Submissions</h4>
+                <p><code>modules/submission</code> handles email-mode, encrypted storage-mode, multirespondent workflows, upload receiver middleware, and verified content.</p>
+              </div>
+              <div class="mini-card">
+                <h4>Auth</h4>
+                <p><code>modules/auth</code>, <code>spcp</code>, <code>sgid</code>, and <code>myinfo</code> support admin sessions and respondent government identity flows.</p>
+              </div>
+              <div class="mini-card">
+                <h4>Payments</h4>
+                <p><code>modules/payments</code> and payment routes own Stripe Connect, payment records, receipts, proofs, and reconciliation APIs.</p>
+              </div>
+              <div class="mini-card">
+                <h4>Webhooks</h4>
+                <p><code>modules/webhook</code> signs outbound webhook payloads with the SDK and retries failed deliveries via SQS.</p>
+              </div>
+              <div class="mini-card">
+                <h4>Operations</h4>
+                <p>Analytics, feature flags, billing, bounce handling, feedback, issue reporting, workspace, user, intranet, WOGAA, and Datadog modules.</p>
+              </div>
+            </div>
+
+            <h3>Database models</h3>
+            <p>
+              Mongoose model factories live in <code>src/app/models</code>. Core collections
+              include forms, submissions, pending submissions, users, agencies, workspaces,
+              payments, OTP/login tokens, feedback, issues, statistics, whitelists, and
+              feature flags. Field sub-schemas under <code>models/field</code> mirror shared
+              field types from <code>formsg-shared/types/field</code>.
+            </p>
+
+            <h3>Error handling pattern</h3>
+            <div class="timeline">
+              <div class="step"><strong>Validate</strong><br />Celebrate/Joi rejects malformed requests before controller logic.</div>
+              <div class="step"><strong>Execute</strong><br />Services often return <code>neverthrow</code> <code>Result</code>/<code>ResultAsync</code> values.</div>
+              <div class="step"><strong>Map</strong><br />Module-specific <code>mapRouteError</code> utilities convert domain errors into HTTP status and messages.</div>
+              <div class="step"><strong>Handle</strong><br />Global Express error handlers normalize celebrate, body-parser, Mongo, and unknown errors.</div>
+            </div>
+          </section>
+
+          <section id="shared-packages" class="section-card">
+            <h2>Shared packages</h2>
+            <p class="lede">
+              Shared code is split between the private domain package
+              <code>formsg-shared</code>, the published JavaScript SDK, and a private React
+              Email preview tool.
+            </p>
+
+            <div class="grid three">
+              <article class="mini-card">
+                <h3>formsg-shared</h3>
+                <p>
+                  Canonical contract layer for types, constants, feature flags, validation
+                  utilities, logic helpers, payment helpers, URL utilities, and Zod schemas.
+                </p>
+                <div class="pill-row">
+                  <span class="pill">Private</span>
+                  <span class="pill green">CJS build</span>
+                  <span class="pill purple">TS source for Vite</span>
+                </div>
+              </article>
+              <article class="mini-card">
+                <h3>FormSG SDK</h3>
+                <p>
+                  Published <code>@opengovsg/formsg-sdk</code> package for webhook signatures,
+                  submission decryption, verified field signatures, and v3/v4 adapters.
+                </p>
+                <div class="pill-row">
+                  <span class="pill">MIT</span>
+                  <span class="pill green">CJS + ESM</span>
+                  <span class="pill orange">External integrators</span>
+                </div>
+              </article>
+              <article class="mini-card">
+                <h3>React email preview</h3>
+                <p>
+                  Developer-only package for previewing email templates without sending mail;
+                  reuses backend template components and data.
+                </p>
+                <div class="pill-row">
+                  <span class="pill">Port 4242</span>
+                  <span class="pill purple">React Email</span>
+                </div>
+              </article>
+            </div>
+
+            <h3>Important shared exports</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Import path</th>
+                    <th>Contents</th>
+                    <th>Used by</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>formsg-shared/types</code></td>
+                    <td>Field, form, payment, submission, user, analytics, workspace, status tracker types.</td>
+                    <td>Frontend, backend, tests.</td>
+                  </tr>
+                  <tr>
+                    <td><code>formsg-shared/types/field</code></td>
+                    <td><code>BasicField</code>, field DTOs, response field shapes, MyInfo attributes.</td>
+                    <td>Field renderer, builder, Mongoose field schemas, validators.</td>
+                  </tr>
+                  <tr>
+                    <td><code>formsg-shared/constants/form</code></td>
+                    <td>Response-mode-specific projections for public/admin form data.</td>
+                    <td>Backend APIs and frontend public/admin form flows.</td>
+                  </tr>
+                  <tr>
+                    <td><code>formsg-shared/constants/feature-flags</code></td>
+                    <td>GrowthBook and backend feature flag keys.</td>
+                    <td>Frontend feature checks and backend GrowthBook config.</td>
+                  </tr>
+                  <tr>
+                    <td><code>formsg-shared/utils/*</code></td>
+                    <td>NRIC, UEN, email domain, phone, file, address, date, URL, logic, payments, crypto, verification helpers.</td>
+                    <td>Both apps, shared tests, validators.</td>
+                  </tr>
+                  <tr>
+                    <td><code>@opengovsg/formsg-sdk</code></td>
+                    <td>Factory returning webhooks, crypto, cryptoV3, and verification APIs.</td>
+                    <td>Backend webhook signing, frontend response decryption, external users.</td>
+                  </tr>
+                  <tr>
+                    <td><code>@opengovsg/formsg-sdk/adapters</code></td>
+                    <td>Response format migration helpers.</td>
+                    <td>Multirespondent submission and encrypted response flows.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="services" class="section-card">
+            <h2>Serverless and sidecar services</h2>
+            <p class="lede">
+              Several workloads are intentionally separate from the main backend process
+              because they need Lambda runtime characteristics, heavy browser binaries,
+              or scheduled execution.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Service</th>
+                    <th>Entry points</th>
+                    <th>Role</th>
+                    <th>Local development</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>GuardDuty virus scanner</td>
+                    <td><code>services/virus-scanner-guardduty/src/index.ts</code>, <code>s3.service.ts</code></td>
+                    <td>Reads GuardDuty malware scan tags and promotes/rejects S3 uploads.</td>
+                    <td><code>pnpm dev:virus-scanner-guardduty</code></td>
+                  </tr>
+                  <tr>
+                    <td>PDF generator</td>
+                    <td><code>services/pdf-gen-sparticuz/src/index.ts</code>, <code>pdfGen.ts</code></td>
+                    <td>Converts HTML to base64 PDF via Puppeteer and Sparticuz Chromium.</td>
+                    <td><code>pnpm dev:pdf-gen</code></td>
+                  </tr>
+                  <tr>
+                    <td>Payment reconciliation</td>
+                    <td><code>services/form-payment-reconciliation/index.js</code></td>
+                    <td>Scheduled Stripe reconciliation calling FormSG payment APIs and reporting to Slack.</td>
+                    <td>Manual invocation with configured secrets.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="forms-submissions" class="section-card">
+            <h2>Forms and submissions</h2>
+            <p class="lede">
+              Forms are the central domain object. A form can be public or private, can
+              use different respondent auth modes, and can collect responses via email,
+              encrypted storage, or multirespondent workflows.
+            </p>
+
+            <div class="grid three">
+              <div class="mini-card">
+                <h3>Email mode</h3>
+                <p>Legacy response flow where submissions are sent by email, with backend validation and mail delivery.</p>
+              </div>
+              <div class="mini-card">
+                <h3>Storage mode</h3>
+                <p>Encrypted submissions stored in MongoDB/S3-backed workflows, decrypted client-side by admins using the SDK.</p>
+              </div>
+              <div class="mini-card">
+                <h3>Multirespondent mode</h3>
+                <p>Workflow-based forms with multiple respondents, step state, status tracker, and v3/v4 answer adapters.</p>
+              </div>
+            </div>
+
+            <h3>Core files</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Concern</th>
+                    <th>Backend</th>
+                    <th>Frontend/shared</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Form model</td>
+                    <td><code>apps/backend/src/app/models/form.server.model.ts</code></td>
+                    <td><code>packages/shared/types/form</code></td>
+                  </tr>
+                  <tr>
+                    <td>Submission model</td>
+                    <td><code>models/submission.server.model.ts</code>, <code>pending_submission.server.model.ts</code></td>
+                    <td><code>packages/shared/types/submission.ts</code>, SDK types</td>
+                  </tr>
+                  <tr>
+                    <td>Public form APIs</td>
+                    <td><code>modules/form/public-form</code>, <code>routes/api/v3/forms</code></td>
+                    <td><code>features/public-form</code>, <code>PublicFormService.ts</code></td>
+                  </tr>
+                  <tr>
+                    <td>Admin builder</td>
+                    <td><code>modules/form/admin-form</code>, admin routes</td>
+                    <td><code>features/admin-form/create</code>, <code>templates/Field</code></td>
+                  </tr>
+                  <tr>
+                    <td>Validation</td>
+                    <td><code>utils/field-validation</code>, celebrate schemas</td>
+                    <td><code>formsg-shared/utils/*-validation</code>, React Hook Form rules</td>
+                  </tr>
+                  <tr>
+                    <td>Encrypted responses</td>
+                    <td><code>modules/submission/encrypt-submission</code>, SDK init</td>
+                    <td><code>features/admin-form/responses/ResponsesPage/storage</code>, decryption worker</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="auth" class="section-card">
+            <h2>Auth and access</h2>
+            <p class="lede">
+              FormSG has separate auth concepts for administrators, respondents, API users,
+              cron jobs, and form collaborators.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Auth type</th>
+                    <th>Backend modules</th>
+                    <th>Mechanism</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Admin session</td>
+                    <td><code>modules/auth</code>, <code>auth.middlewares.ts</code></td>
+                    <td>Email OTP or identity provider login; session stored in MongoDB via <code>connect-mongo</code>.</td>
+                  </tr>
+                  <tr>
+                    <td>Admin sgID/SSO/WOG AD</td>
+                    <td><code>modules/auth/sgid</code>, <code>auth/sso</code>, <code>auth/wogad</code></td>
+                    <td>OAuth/OIDC or MSAL-backed admin login flows.</td>
+                  </tr>
+                  <tr>
+                    <td>Respondent SingPass/CorpPass</td>
+                    <td><code>modules/spcp</code>, <code>routes/singpass</code></td>
+                    <td>OIDC flows with JWKS endpoints and MyInfo integration.</td>
+                  </tr>
+                  <tr>
+                    <td>Respondent sgID</td>
+                    <td><code>modules/sgid</code></td>
+                    <td>sgID callbacks and respondent session/identity checks.</td>
+                  </tr>
+                  <tr>
+                    <td>Public API key</td>
+                    <td>Public v1 routes, auth middleware</td>
+                    <td>Bearer token format with user ID and hash; platform users may impersonate by email.</td>
+                  </tr>
+                  <tr>
+                    <td>Cron payment secret</td>
+                    <td>Payment reconciliation routes</td>
+                    <td><code>x-formsg-cron-payment-secret</code> header.</td>
+                  </tr>
+                  <tr>
+                    <td>Form collaborator permissions</td>
+                    <td><code>admin-form.utils.ts</code>, workspace modules</td>
+                    <td>Permission-level assertions before admin form mutations.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="callout warning" style="margin-top: 1rem">
+              <strong>Frontend auth note:</strong> the frontend stores a local authenticated
+              hint in <code>localStorage</code>, but the real authority is the backend session
+              cookie. Axios 401 handling clears the local hint.
+            </div>
+          </section>
+
+          <section id="payments" class="section-card">
+            <h2>Payments</h2>
+            <p class="lede">
+              Payment support is built around Stripe Connect, payment fields in forms,
+              pending submissions, receipts, payment-proof storage, and reconciliation.
+            </p>
+
+            <div class="grid two">
+              <article class="mini-card">
+                <h3>Backend</h3>
+                <ul>
+                  <li><code>modules/payments</code> owns Stripe service code and payment domain services.</li>
+                  <li><code>routes/api/v3/payments</code> exposes payment, webhook, receipt, and reconcile APIs.</li>
+                  <li><code>models/payment.server.model.ts</code> stores payment records.</li>
+                  <li><code>services/form-payment-reconciliation</code> calls reconcile endpoints on a schedule.</li>
+                </ul>
+              </article>
+              <article class="mini-card">
+                <h3>Frontend/shared</h3>
+                <ul>
+                  <li><code>features/admin-form/settings</code> configures payment settings.</li>
+                  <li><code>features/public-form</code> handles payment-enabled respondent flows.</li>
+                  <li><code>formsg-shared/types/payment</code> defines payment enums and DTOs.</li>
+                  <li><code>formsg-shared/utils/payments</code> and <code>paymentProductPrice</code> format and validate amounts.</li>
+                </ul>
+              </article>
+            </div>
+          </section>
+
+          <section id="integrations" class="section-card">
+            <h2>Integrations</h2>
+            <p class="lede">
+              Integration code is mostly backend-owned, with frontend clients consuming
+              public settings and shared types.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Concern</th>
+                    <th>Provider</th>
+                    <th>Code location</th>
+                    <th>Local mock</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Storage</td>
+                    <td>AWS S3</td>
+                    <td><code>utils/aws-s3.ts</code>, upload/submission modules</td>
+                    <td>LocalStack</td>
+                  </tr>
+                  <tr>
+                    <td>Webhook retries</td>
+                    <td>AWS SQS</td>
+                    <td><code>modules/webhook</code></td>
+                    <td>LocalStack SQS</td>
+                  </tr>
+                  <tr>
+                    <td>Email</td>
+                    <td>AWS SES / SMTP</td>
+                    <td><code>services/mail</code>, <code>views/templates</code></td>
+                    <td>MailDev</td>
+                  </tr>
+                  <tr>
+                    <td>SMS</td>
+                    <td>Postman.gov.sg / Twilio legacy</td>
+                    <td><code>services/postman-sms</code>, <code>services/sms</code></td>
+                    <td>Config-gated</td>
+                  </tr>
+                  <tr>
+                    <td>Government identity</td>
+                    <td>SingPass, CorpPass, MyInfo, sgID</td>
+                    <td><code>modules/spcp</code>, <code>myinfo</code>, <code>sgid</code></td>
+                    <td>MockPass</td>
+                  </tr>
+                  <tr>
+                    <td>Payments</td>
+                    <td>Stripe Connect</td>
+                    <td><code>modules/payments</code>, Stripe loader</td>
+                    <td>Stripe CLI</td>
+                  </tr>
+                  <tr>
+                    <td>Bot protection</td>
+                    <td>reCAPTCHA / Cloudflare Turnstile</td>
+                    <td><code>services/captcha</code>, <code>services/turnstile</code>, frontend Turnstile feature</td>
+                    <td>Test keys / disabled flows</td>
+                  </tr>
+                  <tr>
+                    <td>Feature flags</td>
+                    <td>GrowthBook and DB flags</td>
+                    <td><code>config/features/growthbook.config.ts</code>, <code>modules/feature-flags</code>, frontend context</td>
+                    <td>Dev key / backend flags</td>
+                  </tr>
+                  <tr>
+                    <td>Observability</td>
+                    <td>Datadog, Google Analytics, WOGAA</td>
+                    <td><code>loaders/datadog-tracer.ts</code>, frontend <code>utils/datadog.ts</code>, analytics modules</td>
+                    <td>Optional config</td>
+                  </tr>
+                  <tr>
+                    <td>AI assistance</td>
+                    <td>Azure OpenAI</td>
+                    <td><code>admin-form.assistance.service.ts</code>, <code>azureopenai.config.ts</code></td>
+                    <td>Config-gated</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="development" class="section-card">
+            <h2>Local development</h2>
+            <p class="lede">
+              The repo uses pnpm workspaces and plain root scripts. Install once at the
+              root, then run either the complete stack or individual components.
+            </p>
+
+            <div class="grid two">
+              <article class="mini-card">
+                <h3>Install and run</h3>
+                <pre><code>pnpm install
+pnpm dev</code></pre>
+                <p>Requires Node <code>&gt;=22.22</code> and pnpm <code>&gt;=10.30.3</code>.</p>
+              </article>
+              <article class="mini-card">
+                <h3>Run components separately</h3>
+                <pre><code>pnpm dev:frontend
+docker compose up
+pnpm dev:pdf-gen
+pnpm dev:virus-scanner-guardduty</code></pre>
+                <p>Useful when iterating on a single app or avoiding heavy services.</p>
+              </article>
+            </div>
+
+            <h3>Command reference</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Command</th>
+                    <th>Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>pnpm build</code></td>
+                    <td>Clean and build SDK, shared, frontend, and backend.</td>
+                  </tr>
+                  <tr>
+                    <td><code>pnpm build:frontend</code>, <code>pnpm build:backend</code></td>
+                    <td>Build one application package.</td>
+                  </tr>
+                  <tr>
+                    <td><code>pnpm lint</code></td>
+                    <td>Run backend, shared, and frontend lint scripts.</td>
+                  </tr>
+                  <tr>
+                    <td><code>pnpm test</code></td>
+                    <td>Run backend Jest, shared Jest, and frontend Vitest.</td>
+                  </tr>
+                  <tr>
+                    <td><code>pnpm storybook</code></td>
+                    <td>Start frontend Storybook on port 6006.</td>
+                  </tr>
+                  <tr>
+                    <td><code>pnpm test:e2e-v2</code></td>
+                    <td>Build all packages and run Playwright E2E flows.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h3>Local services</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Service</th>
+                    <th>Port</th>
+                    <th>Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Frontend Vite</td><td><code>5173</code></td><td>React development server.</td></tr>
+                  <tr><td>Backend API</td><td><code>5001</code></td><td>Express API served by Docker compose.</td></tr>
+                  <tr><td>MongoDB</td><td><code>27017</code></td><td>Replica-set database seeded by <code>init-mongo.js</code>.</td></tr>
+                  <tr><td>MailDev</td><td><code>1080</code></td><td>Local email UI.</td></tr>
+                  <tr><td>LocalStack</td><td><code>4566</code></td><td>S3 and SQS emulation seeded by <code>init-localstack.sh</code>.</td></tr>
+                  <tr><td>MockPass</td><td><code>5156</code></td><td>SingPass, CorpPass, MyInfo, sgID mocks.</td></tr>
+                  <tr><td>Backend inspector</td><td><code>9229</code></td><td>Node inspector exposed by backend dev script.</td></tr>
+                  <tr><td>PDF generator</td><td><code>9997</code></td><td>SAM local Lambda emulator.</td></tr>
+                  <tr><td>Virus scanner</td><td><code>9998/9999</code></td><td>GuardDuty scanner local containers.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="testing" class="section-card">
+            <h2>Testing</h2>
+            <p class="lede">
+              Tests are split by package. Backend and shared use Jest, frontend uses
+              Vitest and Storybook/MSW, SDK uses Jest, and browser flows use Playwright.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Layer</th>
+                    <th>Command</th>
+                    <th>Config</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Backend</td>
+                    <td><code>pnpm test:backend</code></td>
+                    <td><code>apps/backend/jest.config.js</code></td>
+                    <td>Jest, ts-jest, test env file, Mongo memory server, supertest helpers.</td>
+                  </tr>
+                  <tr>
+                    <td>Frontend</td>
+                    <td><code>pnpm test:frontend</code></td>
+                    <td><code>apps/frontend/vitest.config.ts</code></td>
+                    <td>Vitest jsdom, Testing Library, Storybook annotations, mocks in <code>vitest-setup.ts</code>.</td>
+                  </tr>
+                  <tr>
+                    <td>Shared</td>
+                    <td><code>pnpm test:shared</code></td>
+                    <td><code>packages/shared/jest.config.js</code></td>
+                    <td>Validators, logic, type helper tests.</td>
+                  </tr>
+                  <tr>
+                    <td>SDK</td>
+                    <td><code>pnpm test:sdk</code></td>
+                    <td><code>packages/sdk/jest.config.js</code></td>
+                    <td>Webhook, crypto, adapter, and verification tests.</td>
+                  </tr>
+                  <tr>
+                    <td>E2E</td>
+                    <td><code>pnpm test:e2e-v2</code></td>
+                    <td><code>playwright.config.ts</code></td>
+                    <td>Login and encrypted submission flows for Chromium and Firefox against <code>http://localhost:5000</code>.</td>
+                  </tr>
+                  <tr>
+                    <td>Storybook</td>
+                    <td><code>pnpm storybook</code></td>
+                    <td><code>apps/frontend/.storybook</code></td>
+                    <td>Component and feature stories with MSW handlers; Chromatic runs in CI for selected changes.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="ci-cd" class="section-card">
+            <h2>CI/CD and release</h2>
+            <p class="lede">
+              GitHub Actions path-filter lint, test, build, Playwright, Chromatic,
+              security, release, image build, ECS deploy, Lambda deploy, and SDK publish workflows.
+            </p>
+
+            <div class="grid three">
+              <div class="mini-card">
+                <h3>Core CI</h3>
+                <p><code>.github/workflows/ci.yml</code> runs path-filtered package lint/test/build jobs with Node 22.22 and pnpm 10.30.3.</p>
+              </div>
+              <div class="mini-card">
+                <h3>Browser and visual</h3>
+                <p><code>playwright.yml</code> runs E2E projects; <code>chromatic.yml</code> runs visual regression for frontend/email changes.</p>
+              </div>
+              <div class="mini-card">
+                <h3>Release</h3>
+                <p><code>release.yml</code> versions the monorepo, then image build and ECS deploy workflows publish to environments.</p>
+              </div>
+            </div>
+
+            <h3>Contribution gates</h3>
+            <ul>
+              <li>PR titles are linted with Conventional Commit types.</li>
+              <li>Husky hooks run git-secrets and lint-staged locally.</li>
+              <li>Prettier style uses no semicolons, single quotes, and trailing commas.</li>
+              <li>CodeQL and dependency automation run from GitHub Actions configuration.</li>
+            </ul>
+          </section>
+
+          <section id="extension-guides" class="section-card">
+            <h2>Extension guides</h2>
+            <p class="lede">
+              Common changes touch multiple packages. Use these checklists to avoid
+              updating only one side of a shared contract.
+            </p>
+
+            <h3>Add a new field type</h3>
+            <div class="timeline">
+              <div class="step"><strong>Shared contract</strong><br />Add the field type and DTOs under <code>packages/shared/types/field</code>, update <code>BasicField</code>, constants, and validation helpers if needed.</div>
+              <div class="step"><strong>Backend persistence and validation</strong><br />Add/adjust Mongoose field schema under <code>apps/backend/src/app/models/field</code> and Joi validators under <code>utils/field-validation</code>.</div>
+              <div class="step"><strong>Public renderer</strong><br />Create <code>apps/frontend/src/templates/Field/&lt;NewField&gt;</code>, export it, and register it in <code>FieldFactory.tsx</code>.</div>
+              <div class="step"><strong>Admin builder</strong><br />Update builder creation metadata, ordered field constants, and the edit panel under <code>features/admin-form/create</code>.</div>
+              <div class="step"><strong>Tests and docs</strong><br />Add shared/backend validator tests, frontend field tests/stories, i18n strings, and any response export/decryption updates.</div>
+            </div>
+
+            <h3>Add a backend endpoint</h3>
+            <div class="timeline">
+              <div class="step"><strong>Route</strong><br />Add Express route wiring under the correct <code>routes/api/v3</code> subtree and apply auth/rate-limit/celebrate middleware.</div>
+              <div class="step"><strong>Controller</strong><br />Keep request/response mapping thin; delegate domain work to a service.</div>
+              <div class="step"><strong>Service</strong><br />Use existing model factories, shared validators/types, and <code>Result</code>/<code>ResultAsync</code> patterns where the module already uses them.</div>
+              <div class="step"><strong>Error mapping</strong><br />Map domain errors through module-specific <code>mapRouteError</code> utilities and add tests.</div>
+              <div class="step"><strong>Frontend client</strong><br />Expose a typed service function and React Query hook; update MSW handlers for stories/tests.</div>
+            </div>
+
+            <h3>Add a new integration</h3>
+            <div class="timeline">
+              <div class="step"><strong>Config</strong><br />Add env schema in <code>config/schema.ts</code> or a feature config file. Document local and deployment variables.</div>
+              <div class="step"><strong>Adapter</strong><br />Place low-level client code in <code>apps/backend/src/app/services</code> or an owning module. Keep provider details out of shared.</div>
+              <div class="step"><strong>Domain module</strong><br />Integrate adapter calls through service logic, with typed errors and observable logs/metrics.</div>
+              <div class="step"><strong>Local story</strong><br />Add Docker/mock/test configuration if developers need the provider locally.</div>
+            </div>
+          </section>
+
+          <section id="file-index" class="section-card">
+            <h2>Key file index</h2>
+            <p class="lede">
+              A quick lookup for the files most often needed when navigating the repository.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Concern</th>
+                    <th>Path</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Workspace scripts</td><td><code>package.json</code></td></tr>
+                  <tr><td>Workspace packages</td><td><code>pnpm-workspace.yaml</code></td></tr>
+                  <tr><td>Frontend app bootstrap</td><td><code>apps/frontend/src/index.tsx</code></td></tr>
+                  <tr><td>Frontend providers</td><td><code>apps/frontend/src/app/App.tsx</code></td></tr>
+                  <tr><td>Frontend routes</td><td><code>apps/frontend/src/app/AppRouter.tsx</code></td></tr>
+                  <tr><td>Frontend API client</td><td><code>apps/frontend/src/services/ApiService.ts</code></td></tr>
+                  <tr><td>Public form provider</td><td><code>apps/frontend/src/features/public-form/PublicFormProvider.tsx</code></td></tr>
+                  <tr><td>Field renderer registry</td><td><code>apps/frontend/src/features/public-form/components/FormFields/FieldFactory.tsx</code></td></tr>
+                  <tr><td>Admin form builder</td><td><code>apps/frontend/src/features/admin-form/create</code></td></tr>
+                  <tr><td>Frontend theme</td><td><code>apps/frontend/src/theme/index.ts</code></td></tr>
+                  <tr><td>Backend server entry</td><td><code>apps/backend/src/app/server.ts</code></td></tr>
+                  <tr><td>Express loader</td><td><code>apps/backend/src/app/loaders/express/index.ts</code></td></tr>
+                  <tr><td>API v3 routes</td><td><code>apps/backend/src/app/routes/api/v3/v3.routes.ts</code></td></tr>
+                  <tr><td>Auth middleware</td><td><code>apps/backend/src/app/modules/auth/auth.middlewares.ts</code></td></tr>
+                  <tr><td>Core errors</td><td><code>apps/backend/src/app/modules/core/core.errors.ts</code></td></tr>
+                  <tr><td>Backend config</td><td><code>apps/backend/src/app/config/config.ts</code></td></tr>
+                  <tr><td>Backend env schema</td><td><code>apps/backend/src/app/config/schema.ts</code></td></tr>
+                  <tr><td>Main form model</td><td><code>apps/backend/src/app/models/form.server.model.ts</code></td></tr>
+                  <tr><td>Submission service</td><td><code>apps/backend/src/app/modules/submission/submission.service.ts</code></td></tr>
+                  <tr><td>Webhook queue</td><td><code>apps/backend/src/app/modules/webhook/webhook.factory.ts</code></td></tr>
+                  <tr><td>Shared types</td><td><code>packages/shared/types</code></td></tr>
+                  <tr><td>Shared constants</td><td><code>packages/shared/constants</code></td></tr>
+                  <tr><td>Shared validators</td><td><code>packages/shared/utils</code></td></tr>
+                  <tr><td>SDK entry</td><td><code>packages/sdk/src/index.ts</code></td></tr>
+                  <tr><td>Docker dev stack</td><td><code>docker-compose.yml</code></td></tr>
+                  <tr><td>Playwright config</td><td><code>playwright.config.ts</code></td></tr>
+                  <tr><td>PR template</td><td><code>.github/pull_request_template.md</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+
+        <footer class="footer">
+          <p>
+            This HTML wiki is a repository snapshot for engineering navigation. For
+            production self-hosting guidance, continue to use the FormSG GitBook and the
+            existing Markdown files under <code>docs/</code>.
+          </p>
+        </footer>
+      </div>
+    </div>
+  </body>
+</html>
