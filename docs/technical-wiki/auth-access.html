@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Admin authentication, respondent authentication, sessions, identity integrations, public API keys, and access controls." />
+    <title>FormSG Technical Wiki - Auth and access</title>
+    <link rel="stylesheet" href="assets/wiki.css" />
+  </head>
+  <body data-page="auth-access.html">
+    <div class="mobile-bar">
+      <strong>FormSG Technical Wiki</strong>
+      <button type="button" data-nav-toggle>Menu</button>
+    </div>
+    <div class="app-shell">
+      <aside id="wiki-sidebar" class="sidebar" aria-label="Technical wiki navigation"></aside>
+      <div class="content">
+        <div class="topline">
+          <span class="breadcrumbs"><a href="index.html">Technical wiki</a> / Auth and access</span>
+          <span class="updated">Static snapshot: June 30, 2026</span>
+        </div>
+        <main class="page">
+
+      <section class="hero compact">
+        <p class="eyebrow">Product domains</p>
+        <h1>Auth and access</h1>
+        <p class="lede">Authentication spans admin sessions, respondent identity providers, form-level restrictions, intranet checks, verified fields, and public API bearer keys.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Admin authentication</h2>
+        <table>
+          <thead><tr><th>Mechanism</th><th>Frontend</th><th>Backend</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>OTP login</td><td><code>features/login/LoginPage.tsx</code>, <code>OtpForm.tsx</code></td><td><code>modules/auth</code>, <code>routes/api/v3/auth</code></td><td>Session-backed login with OTP lifecycle and rate limits.</td></tr>
+            <tr><td>sgID admin login</td><td><code>SgidLoginButton.tsx</code></td><td><code>modules/auth/sgid</code></td><td>OIDC-style callback for admin identity.</td></tr>
+            <tr><td>SSO</td><td><code>SsoHoldingPage.tsx</code></td><td><code>modules/auth/sso</code></td><td>Discovery URL, client ID/secret, and callback config come from env.</td></tr>
+            <tr><td>WOG AD</td><td><code>WogadHoldingPage.tsx</code></td><td><code>modules/auth/wogad</code></td><td>Government AD flow that ends in FormSG session establishment.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2>Respondent authentication and verified fields</h2>
+        <ul>
+          <li><strong>SingPass/CorpPass:</strong> route groups under <code>routes/api/v3/singpass</code> and <code>routes/api/v3/corppass</code> use configured NDI endpoints and key material.</li>
+          <li><strong>MyInfo:</strong> <code>modules/myinfo</code> adapts MockPass/local and production MyInfo flows, with frontend augmentation in <code>features/myinfo</code>.</li>
+          <li><strong>sgID respondent login:</strong> configured through <code>SGID_FORM_LOGIN_REDIRECT_URI</code> and frontend public form auth flows.</li>
+          <li><strong>Verified fields:</strong> <code>modules/verification</code>, <code>packages/sdk/src/verification</code>, and shared verified content helpers sign and verify trusted respondent values.</li>
+          <li><strong>Form-level controls:</strong> whitelist, allowed domains, intranet-only access, captcha/Turnstile, and respondent auth settings combine before submission acceptance.</li>
+        </ul>
+      </section>
+
+      <section class="section-card">
+        <h2>Access control boundaries</h2>
+        <pre class="diagram"><code>Admin browser session
+  -&gt; PrivateElement in frontend
+  -&gt; Express session middleware
+  -&gt; auth middlewares
+  -&gt; admin route authorization
+  -&gt; form/workspace ownership checks
+
+Respondent
+  -&gt; optional captcha/Turnstile
+  -&gt; optional SingPass/CorpPass/MyInfo/sgID
+  -&gt; optional intranet/IP/whitelist/domain restrictions
+  -&gt; public form route and submission validators</code></pre>
+      </section>
+
+      <section class="section-card">
+        <h2>Public API keys</h2>
+        <p><code>/api/public/v1</code> exposes public API behavior protected by bearer-token API keys. The local Docker configuration includes <code>API_KEY_VERSION=v1</code>. Changes here must preserve token parsing, auth middleware, rate limiting, and external compatibility.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Auth change checklist</h2>
+        <ul class="checklist">
+          <li>Identify whether the actor is an admin, respondent, public API client, cron job, or trusted service.</li>
+          <li>Update route guards on both frontend and backend; frontend guards are UX, backend guards are authority.</li>
+          <li>Check session serialization, cookie settings, CSRF-like assumptions, and redirect allowlists.</li>
+          <li>Update local MockPass/identity env defaults if the flow must work in Docker.</li>
+          <li>Add route tests for unauthenticated, unauthorized, wrong-form, and happy-path cases.</li>
+        </ul>
+      </section>
+    
+          <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
+        </main>
+      </div>
+    </div>
+    <script src="assets/wiki.js"></script>
+  </body>
+</html>

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Directory, workspace, and ownership map for the FormSG monorepo." />
+    <title>FormSG Technical Wiki - Repository map</title>
+    <link rel="stylesheet" href="assets/wiki.css" />
+  </head>
+  <body data-page="repository-map.html">
+    <div class="mobile-bar">
+      <strong>FormSG Technical Wiki</strong>
+      <button type="button" data-nav-toggle>Menu</button>
+    </div>
+    <div class="app-shell">
+      <aside id="wiki-sidebar" class="sidebar" aria-label="Technical wiki navigation"></aside>
+      <div class="content">
+        <div class="topline">
+          <span class="breadcrumbs"><a href="index.html">Technical wiki</a> / Repository map</span>
+          <span class="updated">Static snapshot: June 30, 2026</span>
+        </div>
+        <main class="page">
+
+      <section class="hero compact">
+        <p class="eyebrow">Start here</p>
+        <h1>Repository map</h1>
+        <p class="lede">The repo is a pnpm workspace with independently buildable applications, shared packages, Lambda-style services, operational scripts, and repository-hosted docs.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Top-level map</h2>
+        <table>
+          <thead><tr><th>Path</th><th>Role</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><code>apps/frontend</code></td><td>React SPA</td><td>Public respondent flows, admin workspace, form builder, response viewing/decryption, payments UI, login, billing, status tracker.</td></tr>
+            <tr><td><code>apps/backend</code></td><td>Express API and production host</td><td>API routes, controllers, services, Mongoose models, integrations, sessions, static asset serving, SPA fallback.</td></tr>
+            <tr><td><code>packages/shared</code></td><td>Shared domain contract</td><td>Types, constants, validation utilities, logic helpers, route constants, payment helpers.</td></tr>
+            <tr><td><code>packages/sdk</code></td><td><code>@opengovsg/formsg-sdk</code></td><td>Crypto, cryptoV3, webhook helpers, verified content signatures, adapters, resource keys.</td></tr>
+            <tr><td><code>packages/react-email-preview</code></td><td>Email preview package</td><td>Previews backend React Email templates during email template development.</td></tr>
+            <tr><td><code>services/virus-scanner-guardduty</code></td><td>GuardDuty scan processor</td><td>Lambda container for moving scanned uploads between quarantine and clean buckets.</td></tr>
+            <tr><td><code>services/pdf-gen-sparticuz</code></td><td>PDF generator Lambda</td><td>Chromium-based PDF generation with packaged Noto fonts.</td></tr>
+            <tr><td><code>services/form-payment-reconciliation</code></td><td>Payment reconciliation job</td><td>Cron-style Node job for reconciling Stripe/payment state with FormSG records.</td></tr>
+            <tr><td><code>scripts</code></td><td>Data migrations and one-off operations</td><td>Dated Mongo migration scripts. Treat every script as production data tooling.</td></tr>
+            <tr><td><code>.github/workflows</code></td><td>Automation</td><td>CI, Playwright, Chromatic, CodeQL, release, image build, ECS, Lambda, and scanner deployment workflows.</td></tr>
+            <tr><td><code>docs</code></td><td>Repository docs</td><td>Self-hosting snapshots, agent docs, and this technical wiki. GitBook remains canonical for self-hosting guidance.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2>Workspace commands and package names</h2>
+        <pre><code>pnpm-workspace.yaml
+  apps/*
+  packages/*
+  services/*
+
+Root scripts
+  pnpm dev                 # docker-compose + frontend + service dev loops
+  pnpm build               # clean, shared, sdk, frontend, backend
+  pnpm test                # backend + shared + frontend
+  pnpm lint                # backend + shared + frontend
+  pnpm storybook           # frontend Storybook
+  pnpm test:e2e-v2         # build and run Playwright
+
+Common filters
+  pnpm --filter formsg-frontend ...
+  pnpm --filter formsg-backend ...
+  pnpm --filter formsg-shared ...
+  pnpm --filter @opengovsg/formsg-sdk ...</code></pre>
+      </section>
+
+      <section class="section-card">
+        <h2>Backend module map</h2>
+        <div class="grid three">
+          <article class="mini-card"><h3>Forms</h3><p><code>modules/form</code>, <code>routes/api/v3/forms</code>, <code>routes/api/v3/admin/forms</code>, field validators, public/admin controllers.</p></article>
+          <article class="mini-card"><h3>Submissions</h3><p><code>modules/submission</code> includes encrypt, email, multirespondent, receiver, webhooks, attachments, feedback, and storage behavior.</p></article>
+          <article class="mini-card"><h3>Identity</h3><p><code>modules/auth</code>, <code>routes/api/v3/auth</code>, SingPass/CorpPass route groups, MyInfo, sgID, SSO, WOG AD.</p></article>
+          <article class="mini-card"><h3>Payments and billing</h3><p><code>modules/payments</code>, <code>modules/billing</code>, payment route groups, Stripe webhooks, reconciliation job integration.</p></article>
+          <article class="mini-card"><h3>Platform</h3><p><code>modules/frontend</code>, <code>feature-flags</code>, <code>analytics</code>, <code>datadog</code>, <code>workspace</code>, <code>intranet</code>.</p></article>
+          <article class="mini-card"><h3>External effects</h3><p><code>services/mail</code>, <code>services/sms</code>, Postman SMS, captcha/Turnstile, webhook producers, AWS clients.</p></article>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>Frontend feature map</h2>
+        <table>
+          <thead><tr><th>Path</th><th>Feature surface</th></tr></thead>
+          <tbody>
+            <tr><td><code>src/app</code></td><td>Application bootstrap, providers, routing, route guards, hash route compatibility.</td></tr>
+            <tr><td><code>src/features/public-form</code></td><td>Respondent form loading, public form context, public submission service, draft/payment wrappers.</td></tr>
+            <tr><td><code>src/templates/Field</code></td><td>Field rendering templates used by public forms and previews.</td></tr>
+            <tr><td><code>src/features/admin-form/create</code></td><td>Builder canvas, drag and drop, drawers, logic/workflow/end page tabs, Zustand stores.</td></tr>
+            <tr><td><code>src/features/admin-form/responses</code></td><td>Response table, individual responses, decryption key handling, Comlink worker, exports.</td></tr>
+            <tr><td><code>src/features/admin-form/settings</code></td><td>General settings, webhooks, translations, secret key modal, toggles.</td></tr>
+            <tr><td><code>src/features/login</code></td><td>OTP login, sgID login, SSO, WOG AD holding pages, profile selection.</td></tr>
+            <tr><td><code>src/features/myinfo</code>, <code>src/features/logic</code></td><td>Feature-specific augmentation and client-side logic helpers.</td></tr>
+            <tr><td><code>src/services</code></td><td>API abstraction, auth service, file handling, OneMap, intranet, landing payment stats.</td></tr>
+          </tbody>
+        </table>
+      </section>
+    
+          <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
+        </main>
+      </div>
+    </div>
+    <script src="assets/wiki.js"></script>
+  </body>
+</html>

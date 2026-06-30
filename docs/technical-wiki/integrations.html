@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="External integration ownership map for identity, payments, storage, telemetry, mail, SMS, and APIs." />
+    <title>FormSG Technical Wiki - Integrations</title>
+    <link rel="stylesheet" href="assets/wiki.css" />
+  </head>
+  <body data-page="integrations.html">
+    <div class="mobile-bar">
+      <strong>FormSG Technical Wiki</strong>
+      <button type="button" data-nav-toggle>Menu</button>
+    </div>
+    <div class="app-shell">
+      <aside id="wiki-sidebar" class="sidebar" aria-label="Technical wiki navigation"></aside>
+      <div class="content">
+        <div class="topline">
+          <span class="breadcrumbs"><a href="index.html">Technical wiki</a> / Integrations</span>
+          <span class="updated">Static snapshot: June 30, 2026</span>
+        </div>
+        <main class="page">
+
+      <section class="hero compact">
+        <p class="eyebrow">Product domains</p>
+        <h1>Integrations matrix</h1>
+        <p class="lede">Integrations are owned at specific module boundaries. Keep provider details isolated and expose stable FormSG contracts to the rest of the application.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Integration ownership</h2>
+        <table>
+          <thead><tr><th>Integration</th><th>Owner paths</th><th>Purpose</th><th>Local support</th></tr></thead>
+          <tbody>
+            <tr><td>AWS S3</td><td>Backend modules, services, Docker localstack</td><td>Attachments, images, logos, static assets, payment proof, scanned clean/quarantine buckets.</td><td>Localstack in <code>docker-compose.yml</code>.</td></tr>
+            <tr><td>AWS SQS</td><td><code>modules/webhook</code></td><td>Webhook delivery queue.</td><td>Localstack with <code>WEBHOOK_SQS_URL</code>.</td></tr>
+            <tr><td>AWS Lambda</td><td>Backend AWS clients, <code>services/*</code></td><td>Virus scanning and PDF generation.</td><td>Service dev scripts.</td></tr>
+            <tr><td>Stripe</td><td><code>modules/payments</code>, notifications routes, reconciliation service</td><td>Payment checkout, webhooks, reconciliation, Connect onboarding.</td><td><code>stripe-cli</code> service in Docker compose.</td></tr>
+            <tr><td>SingPass/CorpPass</td><td><code>routes/api/v3/singpass</code>, <code>corppass</code>, <code>modules/spcp</code></td><td>Respondent national/business identity.</td><td>MockPass container.</td></tr>
+            <tr><td>MyInfo</td><td><code>modules/myinfo</code>, <code>features/myinfo</code></td><td>Verified profile data population.</td><td>MockPass certificates and endpoints.</td></tr>
+            <tr><td>sgID</td><td><code>modules/auth/sgid</code>, respondent sgID config</td><td>Admin and respondent sgID login.</td><td>MockPass/localhost config.</td></tr>
+            <tr><td>SSO and WOG AD</td><td><code>modules/auth/sso</code>, <code>modules/auth/wogad</code></td><td>Admin enterprise identity.</td><td>Env-driven.</td></tr>
+            <tr><td>Mail/SES</td><td><code>services/mail</code>, React Email templates</td><td>OTP, receipts, email-mode submissions, notifications.</td><td>Maildev on port 1080.</td></tr>
+            <tr><td>Postman SMS</td><td><code>services/postman-sms</code></td><td>SMS delivery through Postman campaigns.</td><td>Env-driven test campaign values.</td></tr>
+            <tr><td>GrowthBook</td><td>Backend feature flags, frontend provider</td><td>Feature flag evaluation.</td><td>Development client key in Docker compose.</td></tr>
+            <tr><td>Datadog</td><td>Backend tracing/logs, frontend browser logs/RUM</td><td>Observability, source maps, runtime tracing.</td><td>Env-driven.</td></tr>
+            <tr><td>Go.gov.sg</td><td><code>features/link-shortener</code>, backend GoGov routes/services</td><td>Link shortening.</td><td><code>GOGOV_API_KEY</code>.</td></tr>
+            <tr><td>OneMap</td><td><code>apps/frontend/src/services/OneMapService.ts</code></td><td>Address lookup/map support.</td><td>Env/provider dependent.</td></tr>
+            <tr><td>Captcha/Turnstile</td><td><code>services/captcha</code>, <code>services/turnstile</code>, frontend Turnstile provider</td><td>Bot protection.</td><td>Google test captcha keys in Docker compose.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2>Integration principles</h2>
+        <ul>
+          <li>Provider-specific request/response details should stay inside the owning module or service.</li>
+          <li>External callbacks must verify signatures/tokens before mutating FormSG state.</li>
+          <li>Every retryable provider event should be idempotent by FormSG identifier and provider identifier.</li>
+          <li>Local development should use MockPass, Localstack, Maildev, and Stripe CLI where possible.</li>
+          <li>Configuration belongs in env/convict schemas, not hardcoded inside feature modules.</li>
+        </ul>
+      </section>
+    
+          <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
+        </main>
+      </div>
+    </div>
+    <script src="assets/wiki.js"></script>
+  </body>
+</html>

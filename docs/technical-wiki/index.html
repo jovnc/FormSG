@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="A comprehensive engineering-oriented static wiki for the FormSG monorepo." />
+    <title>FormSG Technical Wiki - Overview</title>
+    <link rel="stylesheet" href="assets/wiki.css" />
+  </head>
+  <body data-page="index.html">
+    <div class="mobile-bar">
+      <strong>FormSG Technical Wiki</strong>
+      <button type="button" data-nav-toggle>Menu</button>
+    </div>
+    <div class="app-shell">
+      <aside id="wiki-sidebar" class="sidebar" aria-label="Technical wiki navigation"></aside>
+      <div class="content">
+        <div class="topline">
+          <span class="breadcrumbs"><a href="index.html">Technical wiki</a> / Overview</span>
+          <span class="updated">Static snapshot: June 30, 2026</span>
+        </div>
+        <main class="page">
+
+      <section class="hero">
+        <p class="eyebrow">FormSG technical wiki</p>
+        <h1>Repository guide for engineers building, extending, and operating FormSG.</h1>
+        <p class="lede">This wiki maps the FormSG v7.34.3 pnpm monorepo from runtime entry points to domain workflows, deployment pipelines, local commands, extension points, and operational gotchas. It is static HTML checked into the repository and does not require a build step to view.</p>
+        <div class="actions">
+          <a class="button primary" href="architecture.html">Understand architecture</a>
+          <a class="button" href="local-development.html">Run locally</a>
+          <a class="button" href="extension-guides.html">Extend safely</a>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>System at a glance</h2>
+        <div class="grid four">
+          <article class="stat"><strong>Workspace</strong><span><code>apps/*</code>, <code>packages/*</code>, <code>services/*</code> through pnpm workspaces</span></article>
+          <article class="stat"><strong>Runtime</strong><span>Node <code>&gt;=22.22</code>, pnpm <code>10.30.3</code>, MongoDB, AWS services</span></article>
+          <article class="stat"><strong>Frontend</strong><span>React 18, Vite, Chakra UI, React Router v6, React Query v3, Zustand</span></article>
+          <article class="stat"><strong>Backend</strong><span>Express 4, TypeScript, Mongoose, sessions, neverthrow, Datadog</span></article>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>Primary mental model</h2>
+        <div class="flow">
+          <div><strong>1. Shared contract</strong><span><code>packages/shared</code> defines fields, forms, payments, logic, validation, and constants used by both applications.</span></div>
+          <div><strong>2. Frontend experience</strong><span><code>apps/frontend</code> renders public forms, admin builder, response decryption, settings, auth pages, and payments.</span></div>
+          <div><strong>3. Backend authority</strong><span><code>apps/backend</code> validates writes, owns sessions, talks to MongoDB/AWS/identity/payment providers, and serves the SPA in production.</span></div>
+          <div><strong>4. Sidecar services</strong><span><code>services/*</code> handles file scanning, PDF generation, and payment reconciliation outside the main request path.</span></div>
+        </div>
+        <p>The safest way to change behavior is to trace the feature across those layers. Field and submission behavior almost always crosses shared types, frontend templates, backend validators, and persisted schemas.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Request lifecycle diagram</h2>
+        <pre class="diagram"><code>Browser
+  |
+  | loads Vite-built SPA and runtime env
+  v
+apps/frontend/src/index.tsx
+  |
+  v
+App.tsx providers -&gt; AppRouter.tsx routes
+  |
+  | axios via services/ApiService.ts
+  v
+Express server at apps/backend/src/app/server.ts
+  |
+  v
+loaders/index.ts -&gt; loaders/express/index.ts
+  |
+  +-- /api/v3/* route modules
+  +-- /api/public/v1/* public API
+  +-- static assets and SPA fallback
+  |
+  v
+Mongoose models, AWS S3/SQS/Lambda, Stripe, identity providers, mail/SMS</code></pre>
+      </section>
+
+      <section class="section-card">
+        <h2>Recommended reading paths</h2>
+        <div class="grid three">
+          <article class="mini-card"><h3>New contributor</h3><ol><li><a href="repository-map.html">Repository map</a></li><li><a href="architecture.html">Architecture</a></li><li><a href="local-development.html">Local development</a></li><li><a href="testing.html">Testing</a></li></ol></article>
+          <article class="mini-card"><h3>Feature engineer</h3><ol><li><a href="shared-sdk.html">Shared packages</a></li><li><a href="frontend.html">Frontend</a></li><li><a href="backend.html">Backend</a></li><li><a href="extension-guides.html">Extension guides</a></li></ol></article>
+          <article class="mini-card"><h3>Operator</h3><ol><li><a href="configuration.html">Configuration</a></li><li><a href="ci-cd-deployment.html">CI/CD and deployment</a></li><li><a href="operations-migrations.html">Operations</a></li><li><a href="glossary-gotchas.html">Gotchas</a></li></ol></article>
+        </div>
+      </section>
+    
+          <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
+        </main>
+      </div>
+    </div>
+    <script src="assets/wiki.js"></script>
+  </body>
+</html>

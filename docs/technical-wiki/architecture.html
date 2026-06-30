@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Runtime architecture, process boundaries, middleware, data ownership, and error patterns." />
+    <title>FormSG Technical Wiki - Architecture</title>
+    <link rel="stylesheet" href="assets/wiki.css" />
+  </head>
+  <body data-page="architecture.html">
+    <div class="mobile-bar">
+      <strong>FormSG Technical Wiki</strong>
+      <button type="button" data-nav-toggle>Menu</button>
+    </div>
+    <div class="app-shell">
+      <aside id="wiki-sidebar" class="sidebar" aria-label="Technical wiki navigation"></aside>
+      <div class="content">
+        <div class="topline">
+          <span class="breadcrumbs"><a href="index.html">Technical wiki</a> / Architecture</span>
+          <span class="updated">Static snapshot: June 30, 2026</span>
+        </div>
+        <main class="page">
+
+      <section class="hero compact">
+        <p class="eyebrow">Architecture</p>
+        <h1>Runtime architecture</h1>
+        <p class="lede">FormSG is a classic SPA plus API system with shared domain packages and AWS-backed side effects. Production serves the frontend through the backend host, while local development runs Vite and Express separately.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Major components</h2>
+        <pre class="diagram"><code>                        +---------------------------+
+                        | packages/shared          |
+                        | types, constants, utils  |
+                        +-------------+-------------+
+                                      |
+                                      v
++----------------------+      +----------------------+      +----------------------+
+| apps/frontend        | ---&gt; | apps/backend         | ---&gt; | MongoDB              |
+| React/Vite SPA       |      | Express/Mongoose API |      | forms, submissions   |
++----------+-----------+      +----------+-----------+      +----------------------+
+           |                             |
+           |                             +-- AWS S3/SQS/Lambda
+           |                             +-- Stripe
+           |                             +-- SingPass/CorpPass/MyInfo/sgID/SSO/WOG AD
+           |                             +-- Mail/SMS/Postman
+           |
+           +-- @opengovsg/formsg-sdk for client decryption and crypto helpers</code></pre>
+      </section>
+
+      <section class="section-card">
+        <h2>Backend boot sequence</h2>
+        <ol>
+          <li><code>apps/backend/src/app/server.ts</code> imports Datadog tracing, creates the app through loaders, initializes AWS config, and listens.</li>
+          <li><code>apps/backend/src/app/loaders/index.ts</code> connects Mongoose and builds the Express server.</li>
+          <li><code>apps/backend/src/app/loaders/express/index.ts</code> applies middleware in order: parsers, cookies, compression, helmet, request IDs, sessions, logging, rate limits, GrowthBook, route mounts, static assets, frontend fallback, not-found, error handlers.</li>
+          <li>Route groups under <code>apps/backend/src/app/routes</code> dispatch into module controllers and services.</li>
+          <li>Services persist with Mongoose models in <code>apps/backend/src/app/models</code> and call AWS, Stripe, identity providers, mail/SMS, or queue producers where needed.</li>
+        </ol>
+      </section>
+
+      <section class="section-card">
+        <h2>Frontend boot sequence</h2>
+        <ol>
+          <li><code>apps/frontend/index.html</code> provides the root node and static HTML shell.</li>
+          <li><code>apps/frontend/src/index.tsx</code> imports Inter, i18n, polyfills, optional MSW, analytics setup, dayjs configuration, and renders <code>&lt;App /&gt;</code>.</li>
+          <li><code>apps/frontend/src/app/App.tsx</code> wires global providers: React Query, Chakra theme, Helmet, Turnstile, Auth, and GrowthBook.</li>
+          <li><code>apps/frontend/src/app/AppRouter.tsx</code> declares public, private, admin, public-form, payment, status tracker, compatibility, and not-found routes.</li>
+          <li>Feature pages use services under <code>apps/frontend/src/services</code> and feature-specific queries/mutations to call the backend.</li>
+        </ol>
+      </section>
+
+      <section class="section-card">
+        <h2>API surfaces</h2>
+        <table>
+          <thead><tr><th>Mount</th><th>Purpose</th><th>Representative route groups</th></tr></thead>
+          <tbody>
+            <tr><td><code>/api/v3</code></td><td>Main product API</td><td><code>/admin</code>, <code>/user</code>, <code>/auth</code>, <code>/client</code>, <code>/notifications</code>, <code>/billings</code>, <code>/analytics</code>, <code>/forms</code>, <code>/singpass</code>, <code>/corppass</code>, <code>/payments</code>, <code>/feature-flags</code>, <code>/intranet</code>, <code>/status</code>.</td></tr>
+            <tr><td><code>/api/public/v1</code></td><td>Public bearer-token API</td><td>Public admin forms endpoints used by external integrations.</td></tr>
+            <tr><td>Identity callbacks</td><td>OIDC and provider callbacks</td><td>SingPass, CorpPass, sgID, SSO, WOG AD, MyInfo endpoints.</td></tr>
+            <tr><td>Static and fallback</td><td>Frontend hosting</td><td>Static assets, runtime env injection, SPA fallback for browser routes.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2>Error, result, and validation conventions</h2>
+        <ul>
+          <li>Domain errors use <code>ApplicationError</code> and shared <code>ErrorCodes</code> from backend core/shared types.</li>
+          <li>Many services return <code>neverthrow</code> results, keeping controller code explicit about success/error branches.</li>
+          <li>Route validators live near route/controller surfaces; field validators also exist in <code>apps/backend/src/app/utils/field-validation/validators</code>.</li>
+          <li>Frontend query/mutation errors flow through React Query, feature toasts, and page-level error components.</li>
+          <li>Do not rely on frontend validation alone. Backend modules are the enforcement boundary for persisted changes.</li>
+        </ul>
+      </section>
+    
+          <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
+        </main>
+      </div>
+    </div>
+    <script src="assets/wiki.js"></script>
+  </body>
+</html>

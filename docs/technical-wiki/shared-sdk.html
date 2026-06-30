@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Shared domain contracts, validation utilities, SDK crypto, webhooks, and email preview package." />
+    <title>FormSG Technical Wiki - Shared packages and SDK</title>
+    <link rel="stylesheet" href="assets/wiki.css" />
+  </head>
+  <body data-page="shared-sdk.html">
+    <div class="mobile-bar">
+      <strong>FormSG Technical Wiki</strong>
+      <button type="button" data-nav-toggle>Menu</button>
+    </div>
+    <div class="app-shell">
+      <aside id="wiki-sidebar" class="sidebar" aria-label="Technical wiki navigation"></aside>
+      <div class="content">
+        <div class="topline">
+          <span class="breadcrumbs"><a href="index.html">Technical wiki</a> / Shared packages and SDK</span>
+          <span class="updated">Static snapshot: June 30, 2026</span>
+        </div>
+        <main class="page">
+
+      <section class="hero compact">
+        <p class="eyebrow">Applications</p>
+        <h1>Shared packages and SDK</h1>
+        <p class="lede">The shared packages are the compatibility layer between frontend, backend, external consumers, and operational services. Start here for domain model changes.</p>
+      </section>
+
+      <section class="section-card">
+        <h2><code>packages/shared</code>: formsg-shared</h2>
+        <table>
+          <thead><tr><th>Path</th><th>Contents</th><th>Used by</th></tr></thead>
+          <tbody>
+            <tr><td><code>types/field</code></td><td>Field shapes for text, number, email, mobile, NRIC, UEN, date, address, attachment, table, section, children compound, signature, rating, image, statement, yes/no, checkbox, dropdown, radio.</td><td>Frontend field rendering, backend schemas/controllers, tests.</td></tr>
+            <tr><td><code>types/form</code></td><td>Form, auth, logic, workflow, product, logo, issue, feedback types.</td><td>Admin builder, public forms, backend form modules.</td></tr>
+            <tr><td><code>types/submission.ts</code>, <code>response*.ts</code></td><td>Submission and response data transfer shapes.</td><td>Submission modules and response UI.</td></tr>
+            <tr><td><code>types/payment.ts</code>, <code>utils/payments.ts</code>, <code>utils/paymentProductPrice.ts</code></td><td>Payment contracts and helpers.</td><td>Payment modules, admin payment settings, reconciliation.</td></tr>
+            <tr><td><code>constants</code></td><td>Routes, links, mail, form constants, workspace constants, file limits, form origin.</td><td>Both apps and services.</td></tr>
+            <tr><td><code>utils</code></td><td>Validation and helper utilities for fields, URLs, files, dates, UEN/NRIC, options maps, logic, crypto, signatures.</td><td>Frontend validation, backend validation, tests.</td></tr>
+            <tr><td><code>modules/logic</code></td><td>Shared logic constants and evaluation helpers.</td><td>Public form visibility, builder logic UI, backend validation.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2><code>packages/sdk</code>: <code>@opengovsg/formsg-sdk</code></h2>
+        <div class="grid two">
+          <article class="mini-card"><h3>Webhooks</h3><p><code>src/webhooks.ts</code> and <code>src/util/webhooks.ts</code> provide signature validation and payload helpers for consumers receiving FormSG webhooks.</p></article>
+          <article class="mini-card"><h3>Crypto</h3><p><code>src/crypto</code> and <code>src/crypto-v3</code> support encrypted storage submissions and client-side/admin-side decryption paths.</p></article>
+          <article class="mini-card"><h3>Verification</h3><p><code>src/verification</code> and resource keys support verified content signatures and checked respondent data.</p></article>
+          <article class="mini-card"><h3>Adapters and stage</h3><p><code>src/adapters</code> and <code>src/util/stage.ts</code> help SDK consumers target the correct environment and payload format.</p></article>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>Shared-change workflow</h2>
+        <ol>
+          <li>Update <code>packages/shared</code> types/constants/utils first.</li>
+          <li>Run <code>pnpm --filter formsg-shared test</code> and update tests beside changed utilities.</li>
+          <li>Update backend Mongoose schemas and validators where persisted data changes.</li>
+          <li>Update frontend templates, form builder drawers, queries/mutations, and story states.</li>
+          <li>Update SDK only when external consumers, crypto, webhooks, or verified content contracts change.</li>
+          <li>Run affected package tests plus root <code>pnpm build</code> for cross-package type safety.</li>
+        </ol>
+      </section>
+
+      <section class="section-card">
+        <h2>Email preview package</h2>
+        <p><code>packages/react-email-preview</code> supports previewing backend React Email templates. Use it when changing email layout, submission receipts, OTP messages, bounce notifications, workflow emails, or payment-related email content.</p>
+      </section>
+    
+          <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
+        </main>
+      </div>
+    </div>
+    <script src="assets/wiki.js"></script>
+  </body>
+</html>

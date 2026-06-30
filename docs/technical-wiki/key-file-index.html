@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Concrete file path index grouped by feature and runtime surface." />
+    <title>FormSG Technical Wiki - Key file index</title>
+    <link rel="stylesheet" href="assets/wiki.css" />
+  </head>
+  <body data-page="key-file-index.html">
+    <div class="mobile-bar">
+      <strong>FormSG Technical Wiki</strong>
+      <button type="button" data-nav-toggle>Menu</button>
+    </div>
+    <div class="app-shell">
+      <aside id="wiki-sidebar" class="sidebar" aria-label="Technical wiki navigation"></aside>
+      <div class="content">
+        <div class="topline">
+          <span class="breadcrumbs"><a href="index.html">Technical wiki</a> / Key file index</span>
+          <span class="updated">Static snapshot: June 30, 2026</span>
+        </div>
+        <main class="page">
+
+      <section class="hero compact">
+        <p class="eyebrow">Reference</p>
+        <h1>Key file index</h1>
+        <p class="lede">A practical lookup table for the files engineers most often need when tracing behavior.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Boot and routing</h2>
+        <table>
+          <thead><tr><th>Path</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td><code>apps/frontend/src/index.tsx</code></td><td>Frontend bootstrap.</td></tr>
+            <tr><td><code>apps/frontend/src/app/App.tsx</code></td><td>Global providers.</td></tr>
+            <tr><td><code>apps/frontend/src/app/AppRouter.tsx</code></td><td>Browser route tree.</td></tr>
+            <tr><td><code>apps/backend/src/app/server.ts</code></td><td>Backend runtime entry.</td></tr>
+            <tr><td><code>apps/backend/src/app/loaders/index.ts</code></td><td>Backend loader composition.</td></tr>
+            <tr><td><code>apps/backend/src/app/loaders/express/index.ts</code></td><td>Middleware and route mounts.</td></tr>
+            <tr><td><code>apps/backend/src/app/routes/api/v3/v3.routes.ts</code></td><td>Main V3 route composition.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2>Forms, fields, and submissions</h2>
+        <table>
+          <thead><tr><th>Path</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td><code>packages/shared/types/field</code></td><td>Canonical field contracts.</td></tr>
+            <tr><td><code>packages/shared/types/form</code></td><td>Canonical form contracts.</td></tr>
+            <tr><td><code>apps/frontend/src/features/public-form/PublicFormPage.tsx</code></td><td>Public form page entry.</td></tr>
+            <tr><td><code>apps/frontend/src/features/public-form/PublicFormProvider.tsx</code></td><td>Public form state provider.</td></tr>
+            <tr><td><code>apps/frontend/src/templates/Field</code></td><td>Field rendering templates.</td></tr>
+            <tr><td><code>apps/frontend/src/features/admin-form/create</code></td><td>Admin builder.</td></tr>
+            <tr><td><code>apps/frontend/src/features/admin-form/responses</code></td><td>Responses, decryption, exports.</td></tr>
+            <tr><td><code>apps/backend/src/app/modules/form</code></td><td>Form services/controllers.</td></tr>
+            <tr><td><code>apps/backend/src/app/modules/submission</code></td><td>Submission services/controllers.</td></tr>
+            <tr><td><code>apps/backend/src/app/models/form.server.model.ts</code></td><td>Form persistence.</td></tr>
+            <tr><td><code>apps/backend/src/app/models/submission.server.model.ts</code></td><td>Submission persistence.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2>Auth, payments, integrations, and services</h2>
+        <table>
+          <thead><tr><th>Path</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td><code>apps/backend/src/app/modules/auth</code></td><td>Admin auth services, middlewares, sgID/SSO/WOG AD.</td></tr>
+            <tr><td><code>apps/backend/src/app/modules/myinfo</code></td><td>MyInfo adapter/controller/service.</td></tr>
+            <tr><td><code>apps/backend/src/app/modules/payments</code></td><td>Payment domain logic.</td></tr>
+            <tr><td><code>apps/backend/src/app/modules/webhook</code></td><td>Webhook validation/queue production.</td></tr>
+            <tr><td><code>apps/backend/src/app/services/mail</code></td><td>Email delivery abstraction.</td></tr>
+            <tr><td><code>services/virus-scanner-guardduty</code></td><td>Upload scan service.</td></tr>
+            <tr><td><code>services/pdf-gen-sparticuz</code></td><td>PDF generation Lambda.</td></tr>
+            <tr><td><code>services/form-payment-reconciliation</code></td><td>Payment reconciliation cron.</td></tr>
+            <tr><td><code>packages/sdk/src</code></td><td>SDK crypto/webhook/verification helpers.</td></tr>
+          </tbody>
+        </table>
+      </section>
+    
+          <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
+        </main>
+      </div>
+    </div>
+    <script src="assets/wiki.js"></script>
+  </body>
+</html>

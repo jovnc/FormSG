@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Mongo migration scripts, operational jobs, data safety, rollout, and rollback guidance." />
+    <title>FormSG Technical Wiki - Operations and migrations</title>
+    <link rel="stylesheet" href="assets/wiki.css" />
+  </head>
+  <body data-page="operations-migrations.html">
+    <div class="mobile-bar">
+      <strong>FormSG Technical Wiki</strong>
+      <button type="button" data-nav-toggle>Menu</button>
+    </div>
+    <div class="app-shell">
+      <aside id="wiki-sidebar" class="sidebar" aria-label="Technical wiki navigation"></aside>
+      <div class="content">
+        <div class="topline">
+          <span class="breadcrumbs"><a href="index.html">Technical wiki</a> / Operations and migrations</span>
+          <span class="updated">Static snapshot: June 30, 2026</span>
+        </div>
+        <main class="page">
+
+      <section class="hero compact">
+        <p class="eyebrow">Build and operate</p>
+        <h1>Operations and migrations</h1>
+        <p class="lede">The <code>scripts</code> directory contains dated Mongo/data migrations and cleanup utilities. Treat them as production data tools with explicit review, dry runs, backups, and rollback decisions.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Migration script inventory themes</h2>
+        <table>
+          <thead><tr><th>Theme</th><th>Representative scripts</th><th>Risk</th></tr></thead>
+          <tbody>
+            <tr><td>MRF/workflow</td><td><code>20240214_mrf-workflow-field-locking</code>, <code>20240215_mrf-retain-workflow-in-submissions</code>, <code>20241029_copy-workflow-step1-email-field-to-settings</code></td><td>Submission workflow behavior and respondent access.</td></tr>
+            <tr><td>Payments</td><td><code>20230222_add-payments-flag</code>, <code>20230315_separate-payments-to-field-and-channel</code>, <code>20230718_set-gst-enabled-flag</code>, <code>20230803_set-payment-fields-snapshot</code>, <code>20230816_convert-payment-fields-snapshot-to-object</code></td><td>Revenue collection and historical payment records.</td></tr>
+            <tr><td>Identity/MyInfo</td><td><code>20210224_myinfo-authtype</code>, <code>20210202_deprecate-myinfo-v2</code>, <code>20200611_myinfo-phonefields-migration</code></td><td>Verified fields and respondent identity data.</td></tr>
+            <tr><td>Field/schema cleanup</td><td><code>20210517_validation-object</code>, <code>20230817_migrate-number-field-schema</code>, <code>20200618_remove-fieldvalue</code></td><td>Form rendering and submission validation.</td></tr>
+            <tr><td>Feature flags/settings</td><td><code>20230508_add-feature-flag</code>, <code>20221201_remove-sgid-flag</code>, <code>20240821_set_isSubmitterIdCollectionEnabled_true_for_all_existing_forms</code></td><td>Global product behavior and rollout flags.</td></tr>
+            <tr><td>Legacy cleanup</td><td><code>20191212_dangling-key-cleanup</code>, <code>20200923_unused-key-cleanup</code>, <code>20210706_remove-endpage-buttons</code></td><td>Historical data assumptions.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2>Migration playbook</h2>
+        <ol>
+          <li>Read the current Mongoose schema and any existing migrations for the same fields.</li>
+          <li>Write the migration to be idempotent and resumable. Store progress markers or query by precise criteria.</li>
+          <li>Include a dry-run mode or count-only query when practical.</li>
+          <li>Estimate matched/modified document counts before writing.</li>
+          <li>Coordinate backup/snapshot timing with operators.</li>
+          <li>Run in staging with production-like data shape.</li>
+          <li>Deploy compatible code before destructive migrations.</li>
+          <li>Capture logs, changed counts, and any failed IDs.</li>
+          <li>Document rollback: script, manual procedure, or explicit no-rollback rationale.</li>
+        </ol>
+      </section>
+
+      <section class="section-card">
+        <h2>Operational hotspots</h2>
+        <ul>
+          <li><strong>Submission encryption:</strong> avoid server-side plaintext assumptions for encrypted storage mode.</li>
+          <li><strong>Payment state:</strong> expect delayed or repeated provider events; reconciliation must be safe to rerun.</li>
+          <li><strong>Attachment scanning:</strong> quarantine/clean bucket transitions should be auditable and idempotent.</li>
+          <li><strong>Identity callbacks:</strong> time windows, redirect URLs, and key rotation can break login flows.</li>
+          <li><strong>Runtime env:</strong> frontend behavior can change without rebuilding if backend-injected env changes.</li>
+        </ul>
+      </section>
+    
+          <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
+        </main>
+      </div>
+    </div>
+    <script src="assets/wiki.js"></script>
+  </body>
+</html>

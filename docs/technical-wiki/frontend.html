@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="React application architecture, routes, feature modules, form rendering, and response decryption." />
+    <title>FormSG Technical Wiki - Frontend</title>
+    <link rel="stylesheet" href="assets/wiki.css" />
+  </head>
+  <body data-page="frontend.html">
+    <div class="mobile-bar">
+      <strong>FormSG Technical Wiki</strong>
+      <button type="button" data-nav-toggle>Menu</button>
+    </div>
+    <div class="app-shell">
+      <aside id="wiki-sidebar" class="sidebar" aria-label="Technical wiki navigation"></aside>
+      <div class="content">
+        <div class="topline">
+          <span class="breadcrumbs"><a href="index.html">Technical wiki</a> / Frontend</span>
+          <span class="updated">Static snapshot: June 30, 2026</span>
+        </div>
+        <main class="page">
+
+      <section class="hero compact">
+        <p class="eyebrow">Applications</p>
+        <h1>Frontend deep dive</h1>
+        <p class="lede"><code>apps/frontend</code> is a Vite React 18 SPA using Chakra UI, React Router v6, React Query v3, Zustand, react-hook-form, i18next, GrowthBook, Datadog browser telemetry, and Comlink workers for expensive client-side work.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Entrypoints and providers</h2>
+        <table>
+          <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+          <tbody>
+            <tr><td><code>apps/frontend/index.html</code></td><td>Static shell loaded by Vite and production asset hosting.</td></tr>
+            <tr><td><code>apps/frontend/src/index.tsx</code></td><td>Imports global CSS/fonts/polyfills/i18n, initializes optional dev tooling and analytics, renders React.</td></tr>
+            <tr><td><code>apps/frontend/src/app/App.tsx</code></td><td>Application providers: Chakra, React Query, Helmet, Turnstile, Auth, GrowthBook.</td></tr>
+            <tr><td><code>apps/frontend/src/app/AppRouter.tsx</code></td><td>Route tree with public/private guards and compatibility wrappers.</td></tr>
+            <tr><td><code>apps/frontend/src/services/ApiService.ts</code></td><td>Axios client abstraction used across features.</td></tr>
+            <tr><td><code>apps/frontend/src/features/env/EnvService.ts</code></td><td>Reads runtime env from <code>window.__ENV__</code> or <code>/client/env</code>.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2>Route map</h2>
+        <pre><code>/                         LandingPage
+/payments                 LandingPaymentsPage
+/dashboard                Private WorkspacePage
+/login                    Public LoginPage
+/login/sso                SsoHoldingPage
+/login/wogad              WogadHoldingPage
+/login-temp               TempLoginPage
+/login/select-profile     SelectProfilePage
+/login/forward            RbiProxyForwardingPage
+/billing                  Private BillingPage
+/:formId                  PublicFormPage through PUBLICFORM_ROUTE
+/:formId/use-template     UseTemplateRedirectPage
+/:formId/payment/:paymentId FormPaymentPage
+/:formId/edit/:submissionId PublicFormPage edit mode
+/:formId/status/:submissionId StatusTrackerPage
+/admin/form/:formId       AdminFormLayout
+  index                   CreatePage builder
+  settings/:settingsTab?  SettingsPage
+  results                 ResponsesPage / IndividualResponsePage
+  results/feedback        FeedbackPage
+  results/charts          ChartsPage
+/admin/form/:formId/preview   PreviewFormPage
+/admin/form/:formId/template  TemplateFormPage
+*                         NotFoundErrorPage</code></pre>
+        <p>Route constants are shared through frontend constants and <code>formsg-shared/constants/routes</code> where cross-package alignment is required.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Public form rendering pipeline</h2>
+        <pre class="diagram"><code>PublicFormPage
+  -&gt; PublicFormProvider
+  -&gt; FormSectionsProvider
+  -&gt; FormFieldsContainer
+  -&gt; VisibleFormFields
+  -&gt; FieldFactory
+  -&gt; apps/frontend/src/templates/Field/*</code></pre>
+        <ul>
+          <li><code>PublicFormService.ts</code> owns public form API calls and submission calls.</li>
+          <li><code>features/form/utils</code> contains question numbering, MRF value extraction, workflow disabling, and related helpers.</li>
+          <li>Logic evaluation uses <code>features/logic</code> and shared logic helpers.</li>
+          <li>MyInfo display augmentation lives in <code>features/myinfo</code>.</li>
+          <li>Draft and payment behavior wrap the form through feature-specific components such as <code>SaveDraftSetupWrapper</code> and payment modals.</li>
+        </ul>
+      </section>
+
+      <section class="section-card">
+        <h2>Admin builder map</h2>
+        <div class="grid two">
+          <article class="mini-card"><h3>Create surface</h3><p><code>features/admin-form/create</code> contains the builder canvas, drag-and-drop via <code>@hello-pangea/dnd</code>, field drawer flows, end page editing, logic editing, workflow tabs, and Zustand-backed local editor state.</p></article>
+          <article class="mini-card"><h3>Settings surface</h3><p><code>features/admin-form/settings</code> manages form settings, translations, webhooks, secret key modals, issue notification toggles, save draft toggles, and other per-form configuration.</p></article>
+          <article class="mini-card"><h3>Templates</h3><p><code>features/admin-form/template</code> powers template preview/use flows and nudge UI.</p></article>
+          <article class="mini-card"><h3>Share</h3><p><code>features/admin-form/share</code> owns share modals and public link related UI.</p></article>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>Responses and client-side decryption</h2>
+        <ol>
+          <li>Response pages under <code>features/admin-form/responses</code> fetch encrypted submission metadata and blobs from backend endpoints.</li>
+          <li><code>StorageResponsesProvider</code> coordinates data fetching, pagination, selected responses, and export state.</li>
+          <li><code>useSecretKey</code> captures and validates the form secret key locally.</li>
+          <li>A decryption worker exposed with Comlink performs expensive crypto away from the UI thread.</li>
+          <li>Crypto primitives come from <code>@opengovsg/formsg-sdk</code>, keeping browser and webhook consumers aligned.</li>
+        </ol>
+      </section>
+
+      <section class="section-card">
+        <h2>Frontend extension checklist</h2>
+        <ul class="checklist">
+          <li>Check shared types before inventing frontend-only shapes.</li>
+          <li>Add or update API methods in <code>services/*Service.ts</code> and feature queries/mutations.</li>
+          <li>Keep route changes in <code>AppRouter.tsx</code> and route constants synchronized.</li>
+          <li>For form fields, update templates, builder drawer controls, validation text, storybook stories, and backend validators.</li>
+          <li>Add Vitest tests near utilities and Storybook stories for visual states.</li>
+          <li>Verify runtime env usage works both from injected <code>window.__ENV__</code> and local dev.</li>
+        </ul>
+      </section>
+    
+          <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
+        </main>
+      </div>
+    </div>
+    <script src="assets/wiki.js"></script>
+  </body>
+</html>

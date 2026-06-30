@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Practical checklists for adding fields, routes, integrations, settings, migrations, and services." />
+    <title>FormSG Technical Wiki - Extension guides</title>
+    <link rel="stylesheet" href="assets/wiki.css" />
+  </head>
+  <body data-page="extension-guides.html">
+    <div class="mobile-bar">
+      <strong>FormSG Technical Wiki</strong>
+      <button type="button" data-nav-toggle>Menu</button>
+    </div>
+    <div class="app-shell">
+      <aside id="wiki-sidebar" class="sidebar" aria-label="Technical wiki navigation"></aside>
+      <div class="content">
+        <div class="topline">
+          <span class="breadcrumbs"><a href="index.html">Technical wiki</a> / Extension guides</span>
+          <span class="updated">Static snapshot: June 30, 2026</span>
+        </div>
+        <main class="page">
+
+      <section class="hero compact">
+        <p class="eyebrow">Reference</p>
+        <h1>Extension guides</h1>
+        <p class="lede">Use these playbooks to keep changes aligned across shared contracts, frontend UX, backend authority, persistence, tests, and operations.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Add a new form field</h2>
+        <ol>
+          <li>Define the type in <code>packages/shared/types/field</code> and update exports.</li>
+          <li>Add any validation helpers in <code>packages/shared/utils</code>.</li>
+          <li>Add backend schema under <code>apps/backend/src/app/models/field</code>.</li>
+          <li>Add backend field validator under <code>apps/backend/src/app/utils/field-validation/validators</code>.</li>
+          <li>Update public rendering in <code>apps/frontend/src/templates/Field</code>.</li>
+          <li>Update admin builder drawer, field list, default values, drag/drop behavior, and previews in <code>features/admin-form/create</code>.</li>
+          <li>Update response rendering, CSV/export, encrypted decryption display, and charts if applicable.</li>
+          <li>Add tests at shared/backend/frontend layers and stories for key states.</li>
+        </ol>
+      </section>
+
+      <section class="section-card">
+        <h2>Add a backend API endpoint</h2>
+        <ol>
+          <li>Select the route group under <code>apps/backend/src/app/routes/api/v3</code> or <code>api/public/v1</code>.</li>
+          <li>Add request validation close to the route/controller.</li>
+          <li>Use existing auth middleware for admin, public respondent, intranet, cron, or bearer-token access.</li>
+          <li>Implement domain behavior in a module service, not directly in the route.</li>
+          <li>Return typed DTOs aligned with <code>packages/shared</code> when frontend or external users consume them.</li>
+          <li>Add route tests for auth failures, validation failures, service errors, and success.</li>
+          <li>Add frontend service/query/mutation wrappers if used by the SPA.</li>
+        </ol>
+      </section>
+
+      <section class="section-card">
+        <h2>Add an external integration</h2>
+        <ol>
+          <li>Identify ownership: backend module, frontend-only service, sidecar service, or SDK.</li>
+          <li>Add config with validation and clear secret/client-visible separation.</li>
+          <li>Create an adapter layer that normalizes provider responses into FormSG domain types.</li>
+          <li>Verify callback signatures/tokens and design idempotency before state changes.</li>
+          <li>Add local development support with MockPass/Localstack/Maildev equivalents if feasible.</li>
+          <li>Add integration tests with provider mocks and document operational dashboards/alerts.</li>
+        </ol>
+      </section>
+
+      <section class="section-card">
+        <h2>Add a new service or job</h2>
+        <ol>
+          <li>Create under <code>services/&lt;name&gt;</code> only if it truly needs a separate runtime.</li>
+          <li>Add package scripts, TypeScript/Jest config, README, and env examples.</li>
+          <li>Define event input/output contracts and validate at boundaries.</li>
+          <li>Make retry behavior and idempotency explicit.</li>
+          <li>Add deployment workflow or extend existing service deployment workflows.</li>
+          <li>Wire local dev into root scripts only if most contributors need it.</li>
+        </ol>
+      </section>
+
+      <section class="section-card">
+        <h2>Review checklist for broad changes</h2>
+        <ul class="checklist">
+          <li>Have shared types, frontend behavior, backend validation, and Mongoose schemas changed together?</li>
+          <li>Are persisted data migrations needed for existing forms/submissions/users/payments?</li>
+          <li>Are runtime env and deployment secrets documented?</li>
+          <li>Are identity/payment/webhook callbacks verified and idempotent?</li>
+          <li>Are new public routes covered by auth/rate limits?</li>
+          <li>Are Storybook, unit, integration, and E2E tests scoped to the change risk?</li>
+          <li>Will the change preserve existing encrypted submission readability?</li>
+        </ul>
+      </section>
+    
+          <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
+        </main>
+      </div>
+    </div>
+    <script src="assets/wiki.js"></script>
+  </body>
+</html>

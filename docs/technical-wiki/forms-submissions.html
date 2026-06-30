@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Form builder, public forms, submissions, encrypted storage, email mode, MRF, and validation." />
+    <title>FormSG Technical Wiki - Forms and submissions</title>
+    <link rel="stylesheet" href="assets/wiki.css" />
+  </head>
+  <body data-page="forms-submissions.html">
+    <div class="mobile-bar">
+      <strong>FormSG Technical Wiki</strong>
+      <button type="button" data-nav-toggle>Menu</button>
+    </div>
+    <div class="app-shell">
+      <aside id="wiki-sidebar" class="sidebar" aria-label="Technical wiki navigation"></aside>
+      <div class="content">
+        <div class="topline">
+          <span class="breadcrumbs"><a href="index.html">Technical wiki</a> / Forms and submissions</span>
+          <span class="updated">Static snapshot: June 30, 2026</span>
+        </div>
+        <main class="page">
+
+      <section class="hero compact">
+        <p class="eyebrow">Product domains</p>
+        <h1>Forms and submissions</h1>
+        <p class="lede">Forms are the central aggregate. Submission behavior branches by mode: encrypted storage, email mode, multirespondent workflow, payment-enabled submissions, and verified fields.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Form lifecycle</h2>
+        <pre class="diagram"><code>Admin creates form
+  -&gt; frontend builder edits shared field definitions
+  -&gt; backend admin-form routes validate and persist Form model
+  -&gt; public form route serves respondent view
+  -&gt; respondent submits answers
+  -&gt; backend validates fields/auth/captcha/payment rules
+  -&gt; submission mode stores encrypted data, sends email, or advances MRF
+  -&gt; admin responses UI decrypts/exports or reads feedback/charts</code></pre>
+      </section>
+
+      <section class="section-card">
+        <h2>Key files by layer</h2>
+        <table>
+          <thead><tr><th>Layer</th><th>Paths</th><th>Responsibilities</th></tr></thead>
+          <tbody>
+            <tr><td>Shared</td><td><code>packages/shared/types/field</code>, <code>types/form</code>, <code>modules/logic</code></td><td>Field/form contracts, workflow/logic types, validation helpers.</td></tr>
+            <tr><td>Frontend public</td><td><code>features/public-form</code>, <code>templates/Field</code>, <code>features/form/utils</code></td><td>Load forms, render fields, apply visibility logic, submit responses.</td></tr>
+            <tr><td>Frontend admin</td><td><code>features/admin-form/create</code>, <code>settings</code>, <code>responses</code></td><td>Builder, settings, response viewing, decryption, export, charts, feedback.</td></tr>
+            <tr><td>Backend routes</td><td><code>routes/api/v3/admin/forms</code>, <code>routes/api/v3/forms</code></td><td>Admin and public route dispatch.</td></tr>
+            <tr><td>Backend modules</td><td><code>modules/form</code>, <code>modules/submission</code></td><td>Business logic, validation, submission mode branching, webhooks.</td></tr>
+            <tr><td>Persistence</td><td><code>models/form.server.model.ts</code>, <code>models/submission.server.model.ts</code>, <code>models/field/*</code></td><td>Mongoose schemas and indexes.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2>Submission modes</h2>
+        <div class="grid two">
+          <article class="mini-card"><h3>Encrypted storage mode</h3><p>Answers are encrypted for admin-side decryption. The frontend uses the form secret key and SDK crypto to decrypt responses. Backend stores encrypted payloads and metadata but should not need plaintext answers.</p></article>
+          <article class="mini-card"><h3>Email mode</h3><p>Submissions are rendered and delivered through backend mail services. Email-mode changes must consider bounce handling, templates, and recipient mapping.</p></article>
+          <article class="mini-card"><h3>Multirespondent forms (MRF)</h3><p>Workflow step state determines which respondent can edit which fields. Shared workflow types, frontend disabling helpers, backend MRF services, and migration scripts must stay aligned.</p></article>
+          <article class="mini-card"><h3>Payment-enabled forms</h3><p>Submission completion can depend on Stripe/payment state. Pending submissions and payment records bridge payment confirmation and final response state.</p></article>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>Field addition checklist</h2>
+        <ul class="checklist">
+          <li>Add shared field type in <code>packages/shared/types/field</code> and export it.</li>
+          <li>Add backend Mongoose field schema in <code>apps/backend/src/app/models/field</code>.</li>
+          <li>Add backend field validation in <code>apps/backend/src/app/utils/field-validation/validators</code> and tests.</li>
+          <li>Add public field template in <code>apps/frontend/src/templates/Field</code>.</li>
+          <li>Add builder drawer controls and create-page behavior under <code>features/admin-form/create</code>.</li>
+          <li>Update logic/workflow compatibility if the field can drive visibility or MRF assignment.</li>
+          <li>Update response rendering/export/decryption display if the answer shape is new.</li>
+          <li>Add Storybook stories and unit tests covering empty, valid, invalid, readonly, disabled, and MRF states.</li>
+        </ul>
+      </section>
+    
+          <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
+        </main>
+      </div>
+    </div>
+    <script src="assets/wiki.js"></script>
+  </body>
+</html>

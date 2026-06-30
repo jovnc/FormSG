@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Stripe integration, payment-enabled forms, pending submissions, reconciliation, and billing." />
+    <title>FormSG Technical Wiki - Payments</title>
+    <link rel="stylesheet" href="assets/wiki.css" />
+  </head>
+  <body data-page="payments.html">
+    <div class="mobile-bar">
+      <strong>FormSG Technical Wiki</strong>
+      <button type="button" data-nav-toggle>Menu</button>
+    </div>
+    <div class="app-shell">
+      <aside id="wiki-sidebar" class="sidebar" aria-label="Technical wiki navigation"></aside>
+      <div class="content">
+        <div class="topline">
+          <span class="breadcrumbs"><a href="index.html">Technical wiki</a> / Payments</span>
+          <span class="updated">Static snapshot: June 30, 2026</span>
+        </div>
+        <main class="page">
+
+      <section class="hero compact">
+        <p class="eyebrow">Product domains</p>
+        <h1>Payments</h1>
+        <p class="lede">Payments connect form configuration, respondent checkout, pending submissions, Stripe notifications, reconciliation, billing, and product pricing helpers.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Payment architecture</h2>
+        <pre class="diagram"><code>Admin configures payment settings
+  -&gt; admin-form payments routes and services
+  -&gt; Form model stores payment product/field/channel settings
+
+Respondent submits payment form
+  -&gt; public form validates answers
+  -&gt; pending submission/payment record created
+  -&gt; Stripe checkout/payment flow
+  -&gt; backend payment notification or reconciliation confirms state
+  -&gt; final submission becomes available to admin</code></pre>
+      </section>
+
+      <section class="section-card">
+        <h2>Key files</h2>
+        <table>
+          <thead><tr><th>Path</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td><code>packages/shared/types/payment.ts</code></td><td>Payment type contracts.</td></tr>
+            <tr><td><code>packages/shared/types/form/product.ts</code></td><td>Product pricing/config types used by payment-enabled forms.</td></tr>
+            <tr><td><code>packages/shared/utils/payments.ts</code>, <code>paymentProductPrice.ts</code></td><td>Shared payment helpers.</td></tr>
+            <tr><td><code>apps/backend/src/app/modules/form/admin-form/admin-form.payments.*</code></td><td>Admin payment settings controller/service/constants.</td></tr>
+            <tr><td><code>apps/backend/src/app/modules/payments</code></td><td>Payment module business logic and route backing services.</td></tr>
+            <tr><td><code>apps/backend/src/app/models/payment.server.model.ts</code></td><td>Payment persistence.</td></tr>
+            <tr><td><code>apps/backend/src/app/models/pending_submission.server.model.ts</code></td><td>Pending response state while payment is in progress.</td></tr>
+            <tr><td><code>apps/frontend/src/features/public-form/components/DuplicatePaymentModal</code></td><td>Respondent duplicate payment UX.</td></tr>
+            <tr><td><code>apps/frontend/src/services/LandingPaymentService.ts</code></td><td>Landing payment statistics/service calls.</td></tr>
+            <tr><td><code>services/form-payment-reconciliation</code></td><td>Cron reconciliation between FormSG and payment provider state.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2>Local payment setup touchpoints</h2>
+        <ul>
+          <li>Docker compose includes <code>stripe-cli</code> forwarding to <code>host.docker.internal:5001/api/v3/notifications/stripe</code>.</li>
+          <li>Relevant env vars include <code>PAYMENT_STRIPE_PUBLISHABLE_KEY</code>, <code>PAYMENT_STRIPE_SECRET_KEY</code>, <code>PAYMENT_STRIPE_CLIENT_ID</code>, <code>PAYMENT_STRIPE_WEBHOOK_SECRET</code>, <code>PAYMENT_MAX_PAYMENT_AMOUNT_CENTS</code>, <code>PAYMENT_MIN_PAYMENT_AMOUNT_CENTS</code>, <code>CRON_PAYMENT_API_SECRET</code>, <code>PAYMENT_GUIDE_LINK</code>, and <code>PAYMENT_LANDING_GUIDE_LINK</code>.</li>
+          <li>Historical payment migrations in <code>scripts</code> include payment flags, GST flags, payment field snapshot changes, and field/channel separation.</li>
+        </ul>
+      </section>
+
+      <section class="section-card">
+        <h2>Payment change checklist</h2>
+        <ul class="checklist">
+          <li>Make all payment state transitions idempotent; webhooks and reconciliation can repeat.</li>
+          <li>Keep Stripe webhook verification and route auth separate from respondent/admin auth.</li>
+          <li>Update shared payment types before frontend/backend behavior.</li>
+          <li>Test abandoned payment, duplicate payment, successful payment, failed payment, and reconciliation repair paths.</li>
+          <li>Check migrations for existing forms when changing product shape or payment flags.</li>
+        </ul>
+      </section>
+    
+          <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
+        </main>
+      </div>
+    </div>
+    <script src="assets/wiki.js"></script>
+  </body>
+</html>

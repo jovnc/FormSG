@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Local setup, Docker Compose services, ports, commands, and troubleshooting." />
+    <title>FormSG Technical Wiki - Local development</title>
+    <link rel="stylesheet" href="assets/wiki.css" />
+  </head>
+  <body data-page="local-development.html">
+    <div class="mobile-bar">
+      <strong>FormSG Technical Wiki</strong>
+      <button type="button" data-nav-toggle>Menu</button>
+    </div>
+    <div class="app-shell">
+      <aside id="wiki-sidebar" class="sidebar" aria-label="Technical wiki navigation"></aside>
+      <div class="content">
+        <div class="topline">
+          <span class="breadcrumbs"><a href="index.html">Technical wiki</a> / Local development</span>
+          <span class="updated">Static snapshot: June 30, 2026</span>
+        </div>
+        <main class="page">
+
+      <section class="hero compact">
+        <p class="eyebrow">Build and operate</p>
+        <h1>Local development</h1>
+        <p class="lede">Local development combines Docker Compose for backing services/backend and Vite for the frontend. The root <code>pnpm dev</code> command orchestrates the common stack.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Prerequisites</h2>
+        <ul>
+          <li>Node <code>&gt;=22.22</code> and pnpm <code>&gt;=10.30.3</code>.</li>
+          <li>Docker and Docker Compose for MongoDB, backend container, Localstack, Maildev, MockPass, Stripe CLI.</li>
+          <li>Install dependencies with <code>pnpm install</code>.</li>
+        </ul>
+      </section>
+
+      <section class="section-card">
+        <h2>Core commands</h2>
+        <table>
+          <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>pnpm dev</code></td><td>Runs <code>docker-compose up</code>, Vite frontend, GuardDuty scanner dev, and PDF generator dev concurrently.</td></tr>
+            <tr><td><code>pnpm dev:frontend</code></td><td>Runs <code>formsg-frontend</code> Vite dev server.</td></tr>
+            <tr><td><code>pnpm dev:backend</code></td><td>Runs backend with <code>ts-node-dev</code>, dotenv, polling, and inspector.</td></tr>
+            <tr><td><code>pnpm build</code></td><td>Cleans and builds shared, SDK, frontend, and backend.</td></tr>
+            <tr><td><code>pnpm test</code></td><td>Runs backend, shared, and frontend tests.</td></tr>
+            <tr><td><code>pnpm lint</code></td><td>Runs lint for backend, shared, and frontend.</td></tr>
+            <tr><td><code>pnpm storybook</code></td><td>Runs frontend Storybook.</td></tr>
+            <tr><td><code>pnpm test:e2e-v2</code></td><td>Builds and runs Playwright tests.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2>Docker Compose services</h2>
+        <table>
+          <thead><tr><th>Service</th><th>Purpose</th><th>Ports/details</th></tr></thead>
+          <tbody>
+            <tr><td><code>backend</code></td><td>Development backend container with repo mounted into <code>/opt/formsg</code>.</td><td><code>5001:5000</code>, <code>4566</code> Localstack via shared network, <code>5156</code> MockPass via shared network, <code>9229</code> inspector.</td></tr>
+            <tr><td><code>database</code></td><td>MongoDB 4.4 replica-set-style local database.</td><td><code>27017</code>, initialized by <code>init-mongo.js</code>.</td></tr>
+            <tr><td><code>localstack</code></td><td>Local S3/SQS.</td><td>Uses backend network; CORS allows Vite origin.</td></tr>
+            <tr><td><code>maildev</code></td><td>Local mail viewer.</td><td>Web UI on <code>1080</code>.</td></tr>
+            <tr><td><code>mockpass</code></td><td>Mock SingPass/CorpPass/MyInfo/sgID support.</td><td>Shares backend network at port <code>5156</code>.</td></tr>
+            <tr><td><code>stripe-cli</code></td><td>Stripe webhook forwarding.</td><td>Forwards to <code>host.docker.internal:5001/api/v3/notifications/stripe</code>.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2>Runtime env in frontend</h2>
+        <p>The backend injects runtime environment into <code>window.__ENV__</code> for the browser and also exposes <code>/client/env</code>. This allows the same frontend build to run against different backend environments. Local frontend code reads the values through <code>apps/frontend/src/features/env/EnvService.ts</code>.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Troubleshooting</h2>
+        <ul>
+          <li>If the frontend cannot call APIs, confirm Vite proxy and backend port <code>5001</code>.</li>
+          <li>If identity flows fail locally, confirm MockPass is reachable at the backend shared network port and redirect URLs use <code>localhost:5001</code>.</li>
+          <li>If uploads/webhooks fail, confirm Localstack S3/SQS buckets/queues and <code>AWS_ENDPOINT</code>.</li>
+          <li>If emails do not appear, check Maildev at <code>localhost:1080</code> and backend SES host/port env.</li>
+          <li>If Stripe webhooks do not fire, check <code>STRIPE_API_KEY</code>, <code>STRIPE_DEVICE_NAME</code>, and the stripe-cli container logs.</li>
+        </ul>
+      </section>
+    
+          <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
+        </main>
+      </div>
+    </div>
+    <script src="assets/wiki.js"></script>
+  </body>
+</html>

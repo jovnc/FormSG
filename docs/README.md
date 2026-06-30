@@ -34,7 +34,8 @@ Whether you're:
 
 For an engineering-focused map of this repository's applications, packages, services,
 tooling, and extension points, see the standalone
-[Technical Wiki](technical-wiki.html).
+[Technical Wiki](technical-wiki/index.html). The legacy
+[`technical-wiki.html`](technical-wiki.html) path redirects there for compatibility.
 
 <details>
 

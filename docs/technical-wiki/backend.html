@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Express application, route modules, Mongoose models, services, and backend conventions." />
+    <title>FormSG Technical Wiki - Backend</title>
+    <link rel="stylesheet" href="assets/wiki.css" />
+  </head>
+  <body data-page="backend.html">
+    <div class="mobile-bar">
+      <strong>FormSG Technical Wiki</strong>
+      <button type="button" data-nav-toggle>Menu</button>
+    </div>
+    <div class="app-shell">
+      <aside id="wiki-sidebar" class="sidebar" aria-label="Technical wiki navigation"></aside>
+      <div class="content">
+        <div class="topline">
+          <span class="breadcrumbs"><a href="index.html">Technical wiki</a> / Backend</span>
+          <span class="updated">Static snapshot: June 30, 2026</span>
+        </div>
+        <main class="page">
+
+      <section class="hero compact">
+        <p class="eyebrow">Applications</p>
+        <h1>Backend deep dive</h1>
+        <p class="lede"><code>apps/backend</code> is a TypeScript Express 4 application with Mongoose models, session-backed admin auth, public API routes, AWS integrations, Stripe webhooks, identity provider callbacks, and production static frontend hosting.</p>
+      </section>
+
+      <section class="section-card">
+        <h2>Entrypoints and loaders</h2>
+        <table>
+          <thead><tr><th>File</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td><code>apps/backend/src/app/server.ts</code></td><td>Runtime entry, Datadog import, app load, AWS config, listener.</td></tr>
+            <tr><td><code>apps/backend/src/app/loaders/index.ts</code></td><td>Application loader that connects MongoDB and Express.</td></tr>
+            <tr><td><code>apps/backend/src/app/loaders/express/index.ts</code></td><td>Middleware stack, route mounting, static assets, frontend fallback, error handlers.</td></tr>
+            <tr><td><code>apps/backend/src/app/config</code></td><td>Convict-backed configuration and environment parsing.</td></tr>
+            <tr><td><code>apps/backend/src/app/loaders/express/error-handler.ts</code></td><td>Central error response logic.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2>V3 route map</h2>
+        <table>
+          <thead><tr><th>Route group</th><th>Typical backing modules</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>/api/v3/admin</code></td><td><code>modules/form/admin-form</code>, <code>workspace</code></td><td>Authenticated admin form CRUD, settings, logic, payments setup, previews, submissions, feedback, workspaces.</td></tr>
+            <tr><td><code>/api/v3/forms</code></td><td><code>modules/form/public-form</code>, <code>modules/submission</code></td><td>Public form reads, auth, feedback, issues, verification, submissions.</td></tr>
+            <tr><td><code>/api/v3/auth</code></td><td><code>modules/auth</code></td><td>OTP, session, sgID admin login, SSO, WOG AD.</td></tr>
+            <tr><td><code>/api/v3/singpass</code>, <code>/api/v3/corppass</code></td><td><code>modules/spcp</code> and routes</td><td>Respondent identity login and callbacks.</td></tr>
+            <tr><td><code>/api/v3/payments</code></td><td><code>modules/payments</code></td><td>Stripe checkout/session/webhook-adjacent payment operations and cron-protected reconciliation hooks.</td></tr>
+            <tr><td><code>/api/v3/notifications</code></td><td><code>modules/bounce</code>, webhook handlers</td><td>Email bounces and Stripe notification endpoints.</td></tr>
+            <tr><td><code>/api/v3/billings</code></td><td><code>modules/billing</code></td><td>Billing page and billing-related admin data.</td></tr>
+            <tr><td><code>/api/v3/client</code></td><td><code>modules/frontend</code></td><td>Runtime client environment for frontend.</td></tr>
+            <tr><td><code>/api/v3/analytics</code>, <code>/feature-flags</code>, <code>/intranet</code>, <code>/status</code></td><td>Named modules</td><td>Telemetry, GrowthBook data, intranet checks, status tracker.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section-card">
+        <h2>Model map</h2>
+        <div class="grid three">
+          <article class="mini-card"><h3>Forms</h3><p><code>form.server.model.ts</code>, <code>form_logic.server.schema.ts</code>, <code>form_workflow_step.server.schema.ts</code>, <code>form_logo.server.schema.ts</code>, field schemas under <code>models/field</code>.</p></article>
+          <article class="mini-card"><h3>Responses</h3><p><code>submission.server.model.ts</code>, <code>pending_submission.server.model.ts</code>, <code>form_feedback.server.model.ts</code>, <code>form_issue.server.model.ts</code>, <code>form_statistics_total.server.model.ts</code>.</p></article>
+          <article class="mini-card"><h3>People and access</h3><p><code>user.server.model.ts</code>, <code>login.server.model.ts</code>, <code>token.server.model.ts</code>, <code>agency.server.model.ts</code>, <code>workspace.server.model.ts</code>, <code>admin_verification.server.model.ts</code>.</p></article>
+          <article class="mini-card"><h3>Payments</h3><p><code>payment.server.model.ts</code>, <code>models/payments/productSchema.ts</code>, pending submissions and payment metadata on form/submission models.</p></article>
+          <article class="mini-card"><h3>Feature flags</h3><p><code>feature_flag.server.model.ts</code> plus GrowthBook modules and frontend flag queries.</p></article>
+          <article class="mini-card"><h3>Feedback</h3><p><code>admin_feedback.server.model.ts</code> and form feedback/issue models support admin and respondent issue reporting.</p></article>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2>Service map</h2>
+        <ul>
+          <li><code>apps/backend/src/app/modules/submission</code>: encrypted storage, email submissions, MRF, receiver handling, webhook production, attachment work.</li>
+          <li><code>apps/backend/src/app/modules/webhook</code>: validation, queue production, retry/stats clients, webhook errors.</li>
+          <li><code>apps/backend/src/app/services/mail</code>: Nodemailer/SES abstraction, React Email rendering, bounce integration.</li>
+          <li><code>apps/backend/src/app/services/sms</code> and <code>postman-sms</code>: SMS counting and Postman campaign delivery.</li>
+          <li><code>apps/backend/src/app/services/captcha</code> and <code>turnstile</code>: bot protection middleware.</li>
+          <li><code>modules/myinfo</code>, <code>spcp</code>, <code>sgid</code>, <code>verification</code>: identity and verified field surfaces.</li>
+        </ul>
+      </section>
+
+      <section class="section-card">
+        <h2>Backend extension checklist</h2>
+        <ul class="checklist">
+          <li>Add route validation and controller tests before wiring new service behavior.</li>
+          <li>Keep shared response/request types in <code>packages/shared</code> if the frontend or SDK consumes them.</li>
+          <li>Update Mongoose schemas and data migrations together for persisted shape changes.</li>
+          <li>Use <code>ApplicationError</code>, <code>ErrorCodes</code>, and <code>neverthrow</code> conventions already used by neighboring modules.</li>
+          <li>Consider rate limits, auth middleware, intranet restrictions, audit/logging, and idempotency for every write endpoint.</li>
+          <li>Add tests under the owning module's <code>__tests__</code> directory and include route-level coverage for new API behavior.</li>
+        </ul>
+      </section>
+    
+          <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
+        </main>
+      </div>
+    </div>
+    <script src="assets/wiki.js"></script>
+  </body>
+</html>
