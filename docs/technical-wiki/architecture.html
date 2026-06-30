@@ -29,27 +29,55 @@
 
       <section class="section-card">
         <h2>Major components</h2>
-        <pre class="diagram"><code>                        +---------------------------+
-                        | packages/shared          |
-                        | types, constants, utils  |
-                        +-------------+-------------+
-                                      |
-                                      v
-+----------------------+      +----------------------+      +----------------------+
-| apps/frontend        | ---&gt; | apps/backend         | ---&gt; | MongoDB              |
-| React/Vite SPA       |      | Express/Mongoose API |      | forms, submissions   |
-+----------+-----------+      +----------+-----------+      +----------------------+
-           |                             |
-           |                             +-- AWS S3/SQS/Lambda
-           |                             +-- Stripe
-           |                             +-- SingPass/CorpPass/MyInfo/sgID/SSO/WOG AD
-           |                             +-- Mail/SMS/Postman
-           |
-           +-- @opengovsg/formsg-sdk for client decryption and crypto helpers</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart LR
+  shared["packages/shared&lt;br/&gt;types, constants, utils"]:::shared
+  sdk["@opengovsg/formsg-sdk&lt;br/&gt;crypto, webhooks, verification"]:::shared
+  frontend["apps/frontend&lt;br/&gt;React/Vite SPA"]:::app
+  backend["apps/backend&lt;br/&gt;Express/Mongoose API"]:::app
+  mongo[("MongoDB&lt;br/&gt;forms, submissions, users, payments")]:::data
+  aws["AWS S3/SQS/Lambda"]:::external
+  stripe["Stripe"]:::external
+  identity["SingPass, CorpPass, MyInfo, sgID, SSO, WOG AD"]:::external
+  comms["Mail, SMS, Postman"]:::external
+
+  shared -- domain contracts --&gt; frontend
+  shared -- domain contracts --&gt; backend
+  sdk -- browser decryption --&gt; frontend
+  sdk -- webhook signing and verification --&gt; backend
+  frontend -- ApiService axios/fetch --&gt; backend
+  backend -- Mongoose --&gt; mongo
+  backend -- storage, queues, Lambdas --&gt; aws
+  backend -- payments --&gt; stripe
+  backend -- identity/auth --&gt; identity
+  backend -- notifications --&gt; comms
+
+  classDef app fill:#dbeafe,stroke:#2563eb,color:#0f172a
+  classDef shared fill:#ede9fe,stroke:#6d28d9,color:#0f172a
+  classDef data fill:#d1fae5,stroke:#047857,color:#0f172a
+  classDef external fill:#ffedd5,stroke:#b45309,color:#0f172a</pre>
+        </div>
       </section>
 
       <section class="section-card">
         <h2>Backend boot sequence</h2>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">sequenceDiagram
+  participant Server as server.ts
+  participant Loader as loaders/index.ts
+  participant Mongo as mongoose.ts
+  participant Express as express/index.ts
+  participant Routes as route modules
+  participant AWS as AWS config
+
+  Server-&gt;&gt;Server: import datadog-tracer
+  Server-&gt;&gt;Loader: loadApp()
+  Loader-&gt;&gt;Mongo: connect MongoDB
+  Loader-&gt;&gt;Express: build middleware and routes
+  Express-&gt;&gt;Routes: mount /api, identity callbacks, frontend fallback
+  Server-&gt;&gt;AWS: configureAws()
+  Server-&gt;&gt;Server: listen(config.port)</pre>
+        </div>
         <ol>
           <li><code>apps/backend/src/app/server.ts</code> imports Datadog tracing, creates the app through loaders, initializes AWS config, and listens.</li>
           <li><code>apps/backend/src/app/loaders/index.ts</code> connects Mongoose and builds the Express server.</li>
@@ -99,5 +127,24 @@
       </div>
     </div>
     <script src="assets/wiki.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      if (window.mermaid) {
+        window.mermaid.initialize({
+          startOnLoad: true,
+          securityLevel: 'strict',
+          theme: 'base',
+          themeVariables: {
+            primaryColor: '#dbeafe',
+            primaryBorderColor: '#2563eb',
+            primaryTextColor: '#0f172a',
+            lineColor: '#64748b',
+            secondaryColor: '#ede9fe',
+            tertiaryColor: '#f8fafc',
+            fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+          }
+        })
+      }
+    </script>
   </body>
 </html>

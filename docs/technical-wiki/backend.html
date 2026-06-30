@@ -29,6 +29,23 @@
 
       <section class="section-card">
         <h2>Entrypoints and loaders</h2>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart TD
+  request["HTTP request"] --&gt; parser["parsers and raw body handling"]
+  parser --&gt; helmet["helmet and CSP nonce"]
+  helmet --&gt; session["session and cookies"]
+  session --&gt; logging["request id, winston, intranet logging"]
+  logging --&gt; growthbook["GrowthBook request context"]
+  growthbook --&gt; routes{"Route match"}
+  routes --&gt; api["/api/v3 and /api/public/v1"]
+  routes --&gt; identity["/sgid, /myinfo, OIDC JWKS"]
+  routes --&gt; static["static assets and SPA fallback"]
+  api --&gt; controllers["controllers"]
+  controllers --&gt; services["domain services"]
+  services --&gt; models["Mongoose models"]
+  services --&gt; integrations["AWS, Stripe, mail, SMS, identity providers"]
+  controllers --&gt; errors["module mapRouteError and global error handler"]</pre>
+        </div>
         <table>
           <thead><tr><th>File</th><th>Role</th></tr></thead>
           <tbody>
@@ -100,5 +117,24 @@
       </div>
     </div>
     <script src="assets/wiki.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      if (window.mermaid) {
+        window.mermaid.initialize({
+          startOnLoad: true,
+          securityLevel: 'strict',
+          theme: 'base',
+          themeVariables: {
+            primaryColor: '#dbeafe',
+            primaryBorderColor: '#2563eb',
+            primaryTextColor: '#0f172a',
+            lineColor: '#64748b',
+            secondaryColor: '#ede9fe',
+            tertiaryColor: '#f8fafc',
+            fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+          }
+        })
+      }
+    </script>
   </body>
 </html>

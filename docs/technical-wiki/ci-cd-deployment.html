@@ -29,6 +29,23 @@
 
       <section class="section-card">
         <h2>Workflow inventory</h2>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart LR
+  pr["Pull request or push"] --&gt; filters["Path filters"]
+  filters --&gt; ci["ci.yml&lt;br/&gt;install, build, lint, tests"]
+  filters --&gt; pw["playwright.yml&lt;br/&gt;browser E2E"]
+  filters --&gt; chromatic["chromatic.yml&lt;br/&gt;visual regression"]
+  ci --&gt; review["Review and merge"]
+  pw --&gt; review
+  chromatic --&gt; review
+  release["Manual release.yml"] --&gt; version["commit-and-tag-version"]
+  version --&gt; image["build-release-image.yml"]
+  image --&gt; ecs["deploy-ecs*.yml"]
+  version --&gt; pdf["deploy-pdf-gen*.yml"]
+  version --&gt; scanner["deploy-virus-scanner-guardduty*.yml"]
+  version --&gt; sdk["publish-sdk.yml if SDK changed"]
+  ecs --&gt; runtime["ECS/CodeDeploy, S3 static assets, Datadog sourcemaps"]</pre>
+        </div>
         <table>
           <thead><tr><th>Workflow</th><th>Purpose</th></tr></thead>
           <tbody>
@@ -78,5 +95,24 @@
       </div>
     </div>
     <script src="assets/wiki.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      if (window.mermaid) {
+        window.mermaid.initialize({
+          startOnLoad: true,
+          securityLevel: 'strict',
+          theme: 'base',
+          themeVariables: {
+            primaryColor: '#dbeafe',
+            primaryBorderColor: '#2563eb',
+            primaryTextColor: '#0f172a',
+            lineColor: '#64748b',
+            secondaryColor: '#ede9fe',
+            tertiaryColor: '#f8fafc',
+            fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+          }
+        })
+      }
+    </script>
   </body>
 </html>

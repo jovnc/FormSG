@@ -73,13 +73,17 @@
 
       <section class="section-card">
         <h2>Public form rendering pipeline</h2>
-        <pre class="diagram"><code>PublicFormPage
-  -&gt; PublicFormProvider
-  -&gt; FormSectionsProvider
-  -&gt; FormFieldsContainer
-  -&gt; VisibleFormFields
-  -&gt; FieldFactory
-  -&gt; apps/frontend/src/templates/Field/*</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart TD
+  page["PublicFormPage"] --&gt; provider["PublicFormProvider&lt;br/&gt;react-hook-form, auth, captcha, submit state"]
+  provider --&gt; sections["FormSectionsProvider&lt;br/&gt;section navigation and visibility context"]
+  sections --&gt; container["FormFieldsContainer&lt;br/&gt;logic-aware field list"]
+  container --&gt; visible["VisibleFormFields&lt;br/&gt;maps visible schemas"]
+  visible --&gt; factory["FieldFactory&lt;br/&gt;switches on BasicField"]
+  factory --&gt; templates["apps/frontend/src/templates/Field/*&lt;br/&gt;field components"]
+  provider --&gt; service["PublicFormService.ts&lt;br/&gt;public form APIs"]
+  provider --&gt; sdk["formsg SDK&lt;br/&gt;encryption/decryption helpers"]</pre>
+        </div>
         <ul>
           <li><code>PublicFormService.ts</code> owns public form API calls and submission calls.</li>
           <li><code>features/form/utils</code> contains question numbering, MRF value extraction, workflow disabling, and related helpers.</li>
@@ -101,6 +105,17 @@
 
       <section class="section-card">
         <h2>Responses and client-side decryption</h2>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart LR
+  admin["Admin browser"] --&gt; responses["features/admin-form/responses"]
+  responses --&gt; key["useSecretKey&lt;br/&gt;local secret key capture"]
+  responses --&gt; api["AdminSubmissionsService&lt;br/&gt;encrypted response APIs"]
+  key --&gt; worker["Comlink decryption worker"]
+  api --&gt; worker
+  worker --&gt; sdk["formsgSdk.cryptoV3"]
+  worker --&gt; table["responses table"]
+  worker --&gt; exports["CSV/PDF/attachment exports"]</pre>
+        </div>
         <ol>
           <li>Response pages under <code>features/admin-form/responses</code> fetch encrypted submission metadata and blobs from backend endpoints.</li>
           <li><code>StorageResponsesProvider</code> coordinates data fetching, pagination, selected responses, and export state.</li>
@@ -127,5 +142,24 @@
       </div>
     </div>
     <script src="assets/wiki.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      if (window.mermaid) {
+        window.mermaid.initialize({
+          startOnLoad: true,
+          securityLevel: 'strict',
+          theme: 'base',
+          themeVariables: {
+            primaryColor: '#dbeafe',
+            primaryBorderColor: '#2563eb',
+            primaryTextColor: '#0f172a',
+            lineColor: '#64748b',
+            secondaryColor: '#ede9fe',
+            tertiaryColor: '#f8fafc',
+            fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+          }
+        })
+      }
+    </script>
   </body>
 </html>

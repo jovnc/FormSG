@@ -53,18 +53,28 @@
 
       <section class="section-card">
         <h2>Access control boundaries</h2>
-        <pre class="diagram"><code>Admin browser session
-  -&gt; PrivateElement in frontend
-  -&gt; Express session middleware
-  -&gt; auth middlewares
-  -&gt; admin route authorization
-  -&gt; form/workspace ownership checks
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart TD
+  subgraph Admin
+    adminBrowser["Admin browser"] --&gt; private["PrivateElement UX guard"]
+    private --&gt; session["Express session middleware"]
+    session --&gt; authMw["withUserAuthentication"]
+    authMw --&gt; adminRoutes["Admin routes"]
+    adminRoutes --&gt; permissions["form/workspace permission checks"]
+  end
 
-Respondent
-  -&gt; optional captcha/Turnstile
-  -&gt; optional SingPass/CorpPass/MyInfo/sgID
-  -&gt; optional intranet/IP/whitelist/domain restrictions
-  -&gt; public form route and submission validators</code></pre>
+  subgraph Respondent
+    respondent["Respondent"] --&gt; captcha["captcha or Turnstile"]
+    captcha --&gt; identity["optional SingPass, CorpPass, MyInfo, sgID"]
+    identity --&gt; restrictions["intranet, whitelist, domain restrictions"]
+    restrictions --&gt; publicRoutes["public form routes and validators"]
+  end
+
+  subgraph Machine
+    apiClient["Public API client"] --&gt; bearer["Bearer API key middleware"]
+    cron["Payment cron"] --&gt; cronSecret["cron secret header middleware"]
+  end</pre>
+        </div>
       </section>
 
       <section class="section-card">
@@ -88,5 +98,24 @@ Respondent
       </div>
     </div>
     <script src="assets/wiki.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      if (window.mermaid) {
+        window.mermaid.initialize({
+          startOnLoad: true,
+          securityLevel: 'strict',
+          theme: 'base',
+          themeVariables: {
+            primaryColor: '#dbeafe',
+            primaryBorderColor: '#2563eb',
+            primaryTextColor: '#0f172a',
+            lineColor: '#64748b',
+            secondaryColor: '#ede9fe',
+            tertiaryColor: '#f8fafc',
+            fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+          }
+        })
+      }
+    </script>
   </body>
 </html>

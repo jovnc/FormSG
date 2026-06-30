@@ -29,16 +29,28 @@
 
       <section class="section-card">
         <h2>Payment architecture</h2>
-        <pre class="diagram"><code>Admin configures payment settings
-  -&gt; admin-form payments routes and services
-  -&gt; Form model stores payment product/field/channel settings
+        <div class="mermaid-wrap">
+          <pre class="mermaid">sequenceDiagram
+  participant Admin
+  participant AdminUI as Admin frontend
+  participant Backend as Backend payments/admin-form
+  participant Mongo as MongoDB
+  participant User as Respondent
+  participant Stripe
+  participant Cron as Reconciliation cron
 
-Respondent submits payment form
-  -&gt; public form validates answers
-  -&gt; pending submission/payment record created
-  -&gt; Stripe checkout/payment flow
-  -&gt; backend payment notification or reconciliation confirms state
-  -&gt; final submission becomes available to admin</code></pre>
+  Admin-&gt;&gt;AdminUI: Configure payment settings
+  AdminUI-&gt;&gt;Backend: Save payment field/product/channel settings
+  Backend-&gt;&gt;Mongo: Persist Form payment config
+  User-&gt;&gt;Backend: Submit payment-enabled form
+  Backend-&gt;&gt;Mongo: Create pending submission and payment record
+  Backend-&gt;&gt;Stripe: Create/confirm payment intent
+  Stripe--&gt;&gt;Backend: Webhook notification
+  Backend-&gt;&gt;Mongo: Idempotently update payment and submission state
+  Cron-&gt;&gt;Backend: Reconcile incomplete payments
+  Backend-&gt;&gt;Stripe: Replay/check provider state
+  Backend-&gt;&gt;Mongo: Repair or cancel stale records</pre>
+        </div>
       </section>
 
       <section class="section-card">
@@ -85,5 +97,24 @@ Respondent submits payment form
       </div>
     </div>
     <script src="assets/wiki.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      if (window.mermaid) {
+        window.mermaid.initialize({
+          startOnLoad: true,
+          securityLevel: 'strict',
+          theme: 'base',
+          themeVariables: {
+            primaryColor: '#dbeafe',
+            primaryBorderColor: '#2563eb',
+            primaryTextColor: '#0f172a',
+            lineColor: '#64748b',
+            secondaryColor: '#ede9fe',
+            tertiaryColor: '#f8fafc',
+            fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+          }
+        })
+      }
+    </script>
   </body>
 </html>

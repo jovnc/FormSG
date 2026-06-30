@@ -29,65 +29,119 @@
 
       <section class="section-card">
         <h2>Encrypted storage submission</h2>
-        <pre class="diagram"><code>Respondent browser
-  -&gt; loads public form metadata
-  -&gt; validates and submits answers
-Backend public form routes
-  -&gt; validates form state, captcha/auth, fields, attachments, payment rules
-  -&gt; persists encrypted submission metadata/payload
-  -&gt; emits webhook if configured
-Admin browser
-  -&gt; loads encrypted responses
-  -&gt; captures secret key through useSecretKey
-  -&gt; Comlink decryption worker uses @opengovsg/formsg-sdk crypto
-  -&gt; renders table/detail/export</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">sequenceDiagram
+  participant Respondent
+  participant Frontend as Public form frontend
+  participant Backend as Backend public form routes
+  participant Mongo as MongoDB
+  participant Webhook as Webhook delivery
+  participant Admin as Admin responses UI
+  participant Worker as Decryption worker
+
+  Respondent-&gt;&gt;Frontend: Load public form
+  Frontend-&gt;&gt;Backend: GET /api/v3/forms/:formId
+  Backend--&gt;&gt;Frontend: Public form DTO and public key
+  Respondent-&gt;&gt;Frontend: Submit answers and attachments
+  Frontend-&gt;&gt;Backend: Encrypted payload and metadata
+  Backend-&gt;&gt;Backend: Validate captcha, auth, fields, attachments, payment rules
+  Backend-&gt;&gt;Mongo: Persist encrypted submission
+  Backend--&gt;&gt;Webhook: Emit signed webhook if configured
+  Admin-&gt;&gt;Backend: Request encrypted responses
+  Backend--&gt;&gt;Admin: Encrypted response stream
+  Admin-&gt;&gt;Worker: Secret key and encrypted payloads
+  Worker-&gt;&gt;Worker: Decrypt with FormSG SDK
+  Worker--&gt;&gt;Admin: Rows, details, exports</pre>
+        </div>
       </section>
 
       <section class="section-card">
         <h2>Multirespondent workflow (MRF)</h2>
-        <pre class="diagram"><code>Admin defines workflow steps
-  -&gt; shared workflow types and Form model persist assignments
-Respondent step 1 submits
-  -&gt; backend creates submission with workflow state
-  -&gt; next respondent receives link/notification
-Respondent step N opens link
-  -&gt; frontend extracts previous values
-  -&gt; augmentFieldWithMrfWorkflowDisabling locks earlier fields
-  -&gt; backend validates allowed step changes
-Final step
-  -&gt; final submission state is available to admins and webhooks</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">sequenceDiagram
+  participant Admin
+  participant Builder as Admin builder
+  participant Backend
+  participant Mongo as MongoDB
+  participant R1 as Respondent step 1
+  participant RN as Later respondent
+  participant Mail as Notification service
+
+  Admin-&gt;&gt;Builder: Define workflow steps and assignees
+  Builder-&gt;&gt;Backend: Save workflow configuration
+  Backend-&gt;&gt;Mongo: Persist form workflow
+  R1-&gt;&gt;Backend: Submit first workflow step
+  Backend-&gt;&gt;Mongo: Create submission with workflow state
+  Backend-&gt;&gt;Mail: Notify next respondent
+  RN-&gt;&gt;Backend: Open edit/status link
+  Backend--&gt;&gt;RN: Prior values and editable step data
+  RN-&gt;&gt;Backend: Submit allowed step changes
+  Backend-&gt;&gt;Backend: Validate workflow permissions and locked fields
+  Backend-&gt;&gt;Mongo: Advance workflow state
+  Backend--&gt;&gt;Admin: Final response available when workflow completes</pre>
+        </div>
       </section>
 
       <section class="section-card">
         <h2>Email-mode submission</h2>
-        <pre class="diagram"><code>Respondent submits email-mode form
-  -&gt; public-form submission route validates payload
-  -&gt; email submission service renders response email
-  -&gt; services/mail sends through SES/Maildev
-  -&gt; bounce notifications update bounce state
-  -&gt; admin sees delivery-related state and feedback through form modules</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">sequenceDiagram
+  participant Respondent
+  participant Backend as Public submission route
+  participant EmailService as Email submission service
+  participant Mail as services/mail
+  participant SES as SES or Maildev
+  participant Bounce as Bounce module
+  participant Admin
+
+  Respondent-&gt;&gt;Backend: Submit email-mode form
+  Backend-&gt;&gt;Backend: Validate payload and form rules
+  Backend-&gt;&gt;EmailService: Render response email and autoreply
+  EmailService-&gt;&gt;Mail: Send messages
+  Mail-&gt;&gt;SES: Deliver through SMTP/SES or Maildev
+  SES--&gt;&gt;Bounce: Bounce/complaint notification if delivery fails
+  Bounce-&gt;&gt;Admin: Surface delivery-related state and warnings</pre>
+        </div>
       </section>
 
       <section class="section-card">
         <h2>Payment flow</h2>
-        <pre class="diagram"><code>Public form submit
-  -&gt; create pending submission/payment record
-  -&gt; redirect or initialize Stripe payment
-Stripe event
-  -&gt; /api/v3/notifications/stripe verifies webhook
-  -&gt; payment/submission state updated idempotently
-Reconciliation service
-  -&gt; scheduled check repairs missed or inconsistent state
-  -&gt; cron-protected backend payment route finalizes decisions</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">sequenceDiagram
+  participant User as Respondent
+  participant Backend
+  participant Mongo as MongoDB
+  participant Stripe
+  participant Cron as Payment reconciliation service
+
+  User-&gt;&gt;Backend: Submit payment form
+  Backend-&gt;&gt;Mongo: Create pending submission and payment record
+  Backend-&gt;&gt;Stripe: Start payment intent
+  Stripe--&gt;&gt;Backend: POST /api/v3/notifications/stripe
+  Backend-&gt;&gt;Backend: Verify signature and event type
+  Backend-&gt;&gt;Mongo: Idempotently update payment/submission state
+  Cron-&gt;&gt;Backend: Call cron-protected reconcile routes
+  Backend-&gt;&gt;Stripe: Compare provider state
+  Backend-&gt;&gt;Mongo: Repair missed/inconsistent records</pre>
+        </div>
       </section>
 
       <section class="section-card">
         <h2>Verified fields</h2>
-        <pre class="diagram"><code>Respondent authenticates with trusted provider
-  -&gt; backend obtains trusted attributes
-  -&gt; verification module signs verified content
-  -&gt; public form stores verified values with signature material
-  -&gt; SDK/backend verification helpers check integrity before trust</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">sequenceDiagram
+  participant Respondent
+  participant Provider as Trusted identity provider
+  participant Backend
+  participant Verification as verification module and SDK
+  participant Form as Public form submission
+
+  Respondent-&gt;&gt;Provider: Authenticate or verify field
+  Provider--&gt;&gt;Backend: Trusted attributes or OTP result
+  Backend-&gt;&gt;Verification: Sign verified content
+  Verification--&gt;&gt;Form: Verified value with signature material
+  Form-&gt;&gt;Verification: Verify signature before trusting value</pre>
+        </div>
       </section>
     
           <p class="footer">This page is generated by <code>docs/technical-wiki/generate-wiki.mjs</code>. The checked-in HTML is the reviewable artifact.</p>
@@ -95,5 +149,24 @@ Reconciliation service
       </div>
     </div>
     <script src="assets/wiki.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      if (window.mermaid) {
+        window.mermaid.initialize({
+          startOnLoad: true,
+          securityLevel: 'strict',
+          theme: 'base',
+          themeVariables: {
+            primaryColor: '#dbeafe',
+            primaryBorderColor: '#2563eb',
+            primaryTextColor: '#0f172a',
+            lineColor: '#64748b',
+            secondaryColor: '#ede9fe',
+            tertiaryColor: '#f8fafc',
+            fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+          }
+        })
+      }
+    </script>
   </body>
 </html>

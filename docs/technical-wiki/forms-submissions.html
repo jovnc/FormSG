@@ -29,14 +29,22 @@
 
       <section class="section-card">
         <h2>Form lifecycle</h2>
-        <pre class="diagram"><code>Admin creates form
-  -&gt; frontend builder edits shared field definitions
-  -&gt; backend admin-form routes validate and persist Form model
-  -&gt; public form route serves respondent view
-  -&gt; respondent submits answers
-  -&gt; backend validates fields/auth/captcha/payment rules
-  -&gt; submission mode stores encrypted data, sends email, or advances MRF
-  -&gt; admin responses UI decrypts/exports or reads feedback/charts</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart LR
+  admin["Admin creates form"] --&gt; builder["Frontend builder&lt;br/&gt;shared field definitions"]
+  builder --&gt; adminApi["Backend admin-form routes&lt;br/&gt;validate and persist"]
+  adminApi --&gt; formModel[("Form model")]
+  formModel --&gt; publicView["Public form route&lt;br/&gt;respondent DTO"]
+  publicView --&gt; respondent["Respondent submits answers"]
+  respondent --&gt; validation["Backend validates fields, auth, captcha, payments"]
+  validation --&gt; mode{"Submission mode"}
+  mode -- storage --&gt; encrypted[("Encrypted submission")]
+  mode -- email --&gt; mail["Email delivery"]
+  mode -- MRF --&gt; workflow["Workflow step advancement"]
+  encrypted --&gt; responses["Admin responses UI&lt;br/&gt;decrypt, export, charts"]
+  mail --&gt; feedback["Feedback and bounce handling"]
+  workflow --&gt; status["Status tracker and next respondent"]</pre>
+        </div>
       </section>
 
       <section class="section-card">
@@ -83,5 +91,24 @@
       </div>
     </div>
     <script src="assets/wiki.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      if (window.mermaid) {
+        window.mermaid.initialize({
+          startOnLoad: true,
+          securityLevel: 'strict',
+          theme: 'base',
+          themeVariables: {
+            primaryColor: '#dbeafe',
+            primaryBorderColor: '#2563eb',
+            primaryTextColor: '#0f172a',
+            lineColor: '#64748b',
+            secondaryColor: '#ede9fe',
+            tertiaryColor: '#f8fafc',
+            fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+          }
+        })
+      }
+    </script>
   </body>
 </html>

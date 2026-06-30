@@ -94,28 +94,21 @@ const pages = [
 
       <section class="section-card">
         <h2>Request lifecycle diagram</h2>
-        <pre class="diagram"><code>Browser
-  |
-  | loads Vite-built SPA and runtime env
-  v
-apps/frontend/src/index.tsx
-  |
-  v
-App.tsx providers -&gt; AppRouter.tsx routes
-  |
-  | axios via services/ApiService.ts
-  v
-Express server at apps/backend/src/app/server.ts
-  |
-  v
-loaders/index.ts -&gt; loaders/express/index.ts
-  |
-  +-- /api/v3/* route modules
-  +-- /api/public/v1/* public API
-  +-- static assets and SPA fallback
-  |
-  v
-Mongoose models, AWS S3/SQS/Lambda, Stripe, identity providers, mail/SMS</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart TD
+  browser["Browser"] -- loads Vite-built SPA and runtime env --&gt; entry["apps/frontend/src/index.tsx"]
+  entry --&gt; app["App.tsx providers"]
+  app --&gt; router["AppRouter.tsx routes"]
+  router -- axios/fetch via ApiService --&gt; server["apps/backend/src/app/server.ts"]
+  server --&gt; loaders["loaders/index.ts and loaders/express/index.ts"]
+  loaders --&gt; routeChoice{"Route surface"}
+  routeChoice --&gt; v3["/api/v3 route modules"]
+  routeChoice --&gt; publicApi["/api/public/v1 public API"]
+  routeChoice --&gt; static["static assets and SPA fallback"]
+  v3 --&gt; effects["Mongoose, AWS, Stripe, identity providers, mail/SMS"]
+  publicApi --&gt; effects
+  static --&gt; browser</pre>
+        </div>
       </section>
 
       <section class="section-card">
@@ -225,27 +218,55 @@ Common filters
 
       <section class="section-card">
         <h2>Major components</h2>
-        <pre class="diagram"><code>                        +---------------------------+
-                        | packages/shared          |
-                        | types, constants, utils  |
-                        +-------------+-------------+
-                                      |
-                                      v
-+----------------------+      +----------------------+      +----------------------+
-| apps/frontend        | ---&gt; | apps/backend         | ---&gt; | MongoDB              |
-| React/Vite SPA       |      | Express/Mongoose API |      | forms, submissions   |
-+----------+-----------+      +----------+-----------+      +----------------------+
-           |                             |
-           |                             +-- AWS S3/SQS/Lambda
-           |                             +-- Stripe
-           |                             +-- SingPass/CorpPass/MyInfo/sgID/SSO/WOG AD
-           |                             +-- Mail/SMS/Postman
-           |
-           +-- @opengovsg/formsg-sdk for client decryption and crypto helpers</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart LR
+  shared["packages/shared&lt;br/&gt;types, constants, utils"]:::shared
+  sdk["@opengovsg/formsg-sdk&lt;br/&gt;crypto, webhooks, verification"]:::shared
+  frontend["apps/frontend&lt;br/&gt;React/Vite SPA"]:::app
+  backend["apps/backend&lt;br/&gt;Express/Mongoose API"]:::app
+  mongo[("MongoDB&lt;br/&gt;forms, submissions, users, payments")]:::data
+  aws["AWS S3/SQS/Lambda"]:::external
+  stripe["Stripe"]:::external
+  identity["SingPass, CorpPass, MyInfo, sgID, SSO, WOG AD"]:::external
+  comms["Mail, SMS, Postman"]:::external
+
+  shared -- domain contracts --&gt; frontend
+  shared -- domain contracts --&gt; backend
+  sdk -- browser decryption --&gt; frontend
+  sdk -- webhook signing and verification --&gt; backend
+  frontend -- ApiService axios/fetch --&gt; backend
+  backend -- Mongoose --&gt; mongo
+  backend -- storage, queues, Lambdas --&gt; aws
+  backend -- payments --&gt; stripe
+  backend -- identity/auth --&gt; identity
+  backend -- notifications --&gt; comms
+
+  classDef app fill:#dbeafe,stroke:#2563eb,color:#0f172a
+  classDef shared fill:#ede9fe,stroke:#6d28d9,color:#0f172a
+  classDef data fill:#d1fae5,stroke:#047857,color:#0f172a
+  classDef external fill:#ffedd5,stroke:#b45309,color:#0f172a</pre>
+        </div>
       </section>
 
       <section class="section-card">
         <h2>Backend boot sequence</h2>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">sequenceDiagram
+  participant Server as server.ts
+  participant Loader as loaders/index.ts
+  participant Mongo as mongoose.ts
+  participant Express as express/index.ts
+  participant Routes as route modules
+  participant AWS as AWS config
+
+  Server-&gt;&gt;Server: import datadog-tracer
+  Server-&gt;&gt;Loader: loadApp()
+  Loader-&gt;&gt;Mongo: connect MongoDB
+  Loader-&gt;&gt;Express: build middleware and routes
+  Express-&gt;&gt;Routes: mount /api, identity callbacks, frontend fallback
+  Server-&gt;&gt;AWS: configureAws()
+  Server-&gt;&gt;Server: listen(config.port)</pre>
+        </div>
         <ol>
           <li><code>apps/backend/src/app/server.ts</code> imports Datadog tracing, creates the app through loaders, initializes AWS config, and listens.</li>
           <li><code>apps/backend/src/app/loaders/index.ts</code> connects Mongoose and builds the Express server.</li>
@@ -348,13 +369,17 @@ Common filters
 
       <section class="section-card">
         <h2>Public form rendering pipeline</h2>
-        <pre class="diagram"><code>PublicFormPage
-  -&gt; PublicFormProvider
-  -&gt; FormSectionsProvider
-  -&gt; FormFieldsContainer
-  -&gt; VisibleFormFields
-  -&gt; FieldFactory
-  -&gt; apps/frontend/src/templates/Field/*</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart TD
+  page["PublicFormPage"] --&gt; provider["PublicFormProvider&lt;br/&gt;react-hook-form, auth, captcha, submit state"]
+  provider --&gt; sections["FormSectionsProvider&lt;br/&gt;section navigation and visibility context"]
+  sections --&gt; container["FormFieldsContainer&lt;br/&gt;logic-aware field list"]
+  container --&gt; visible["VisibleFormFields&lt;br/&gt;maps visible schemas"]
+  visible --&gt; factory["FieldFactory&lt;br/&gt;switches on BasicField"]
+  factory --&gt; templates["apps/frontend/src/templates/Field/*&lt;br/&gt;field components"]
+  provider --&gt; service["PublicFormService.ts&lt;br/&gt;public form APIs"]
+  provider --&gt; sdk["formsg SDK&lt;br/&gt;encryption/decryption helpers"]</pre>
+        </div>
         <ul>
           <li><code>PublicFormService.ts</code> owns public form API calls and submission calls.</li>
           <li><code>features/form/utils</code> contains question numbering, MRF value extraction, workflow disabling, and related helpers.</li>
@@ -376,6 +401,17 @@ Common filters
 
       <section class="section-card">
         <h2>Responses and client-side decryption</h2>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart LR
+  admin["Admin browser"] --&gt; responses["features/admin-form/responses"]
+  responses --&gt; key["useSecretKey&lt;br/&gt;local secret key capture"]
+  responses --&gt; api["AdminSubmissionsService&lt;br/&gt;encrypted response APIs"]
+  key --&gt; worker["Comlink decryption worker"]
+  api --&gt; worker
+  worker --&gt; sdk["formsgSdk.cryptoV3"]
+  worker --&gt; table["responses table"]
+  worker --&gt; exports["CSV/PDF/attachment exports"]</pre>
+        </div>
         <ol>
           <li>Response pages under <code>features/admin-form/responses</code> fetch encrypted submission metadata and blobs from backend endpoints.</li>
           <li><code>StorageResponsesProvider</code> coordinates data fetching, pagination, selected responses, and export state.</li>
@@ -411,6 +447,23 @@ Common filters
 
       <section class="section-card">
         <h2>Entrypoints and loaders</h2>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart TD
+  request["HTTP request"] --&gt; parser["parsers and raw body handling"]
+  parser --&gt; helmet["helmet and CSP nonce"]
+  helmet --&gt; session["session and cookies"]
+  session --&gt; logging["request id, winston, intranet logging"]
+  logging --&gt; growthbook["GrowthBook request context"]
+  growthbook --&gt; routes{"Route match"}
+  routes --&gt; api["/api/v3 and /api/public/v1"]
+  routes --&gt; identity["/sgid, /myinfo, OIDC JWKS"]
+  routes --&gt; static["static assets and SPA fallback"]
+  api --&gt; controllers["controllers"]
+  controllers --&gt; services["domain services"]
+  services --&gt; models["Mongoose models"]
+  services --&gt; integrations["AWS, Stripe, mail, SMS, identity providers"]
+  controllers --&gt; errors["module mapRouteError and global error handler"]</pre>
+        </div>
         <table>
           <thead><tr><th>File</th><th>Role</th></tr></thead>
           <tbody>
@@ -569,17 +622,21 @@ Common filters
 
       <section class="section-card">
         <h2>Queue and storage ownership</h2>
-        <pre class="diagram"><code>Respondent uploads attachment
-  -&gt; backend presigns upload into quarantine bucket
-  -&gt; GuardDuty scans object
-  -&gt; virus-scanner-guardduty validates finding
-  -&gt; clean files move to clean bucket
-  -&gt; submission flow can attach clean object reference
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart TD
+  upload["Respondent uploads attachment"] --&gt; presign["Backend presigns quarantine S3 upload"]
+  presign --&gt; quarantine[("GuardDuty quarantine bucket")]
+  quarantine --&gt; gd["GuardDuty malware scan tags"]
+  gd --&gt; scanner["services/virus-scanner-guardduty"]
+  scanner -- clean --&gt; clean[("Clean attachment bucket")]
+  scanner -- malicious --&gt; reject["Reject submission attachment"]
+  clean --&gt; submission["Submission stores clean object reference"]
 
-Submission creates webhook event
-  -&gt; backend webhook producer validates config
-  -&gt; SQS queue receives job
-  -&gt; worker/delivery infrastructure retries and records stats</code></pre>
+  saved["Submission saved"] --&gt; webhook["modules/webhook validates destination and signs payload"]
+  webhook --&gt; sqs[("SQS retry queue")]
+  sqs --&gt; consumer["webhook consumer retries delivery"]
+  consumer --&gt; record["submission webhook record and stats"]</pre>
+        </div>
       </section>
 
       <section class="section-card">
@@ -607,14 +664,22 @@ Submission creates webhook event
 
       <section class="section-card">
         <h2>Form lifecycle</h2>
-        <pre class="diagram"><code>Admin creates form
-  -&gt; frontend builder edits shared field definitions
-  -&gt; backend admin-form routes validate and persist Form model
-  -&gt; public form route serves respondent view
-  -&gt; respondent submits answers
-  -&gt; backend validates fields/auth/captcha/payment rules
-  -&gt; submission mode stores encrypted data, sends email, or advances MRF
-  -&gt; admin responses UI decrypts/exports or reads feedback/charts</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart LR
+  admin["Admin creates form"] --&gt; builder["Frontend builder&lt;br/&gt;shared field definitions"]
+  builder --&gt; adminApi["Backend admin-form routes&lt;br/&gt;validate and persist"]
+  adminApi --&gt; formModel[("Form model")]
+  formModel --&gt; publicView["Public form route&lt;br/&gt;respondent DTO"]
+  publicView --&gt; respondent["Respondent submits answers"]
+  respondent --&gt; validation["Backend validates fields, auth, captcha, payments"]
+  validation --&gt; mode{"Submission mode"}
+  mode -- storage --&gt; encrypted[("Encrypted submission")]
+  mode -- email --&gt; mail["Email delivery"]
+  mode -- MRF --&gt; workflow["Workflow step advancement"]
+  encrypted --&gt; responses["Admin responses UI&lt;br/&gt;decrypt, export, charts"]
+  mail --&gt; feedback["Feedback and bounce handling"]
+  workflow --&gt; status["Status tracker and next respondent"]</pre>
+        </div>
       </section>
 
       <section class="section-card">
@@ -694,18 +759,28 @@ Submission creates webhook event
 
       <section class="section-card">
         <h2>Access control boundaries</h2>
-        <pre class="diagram"><code>Admin browser session
-  -&gt; PrivateElement in frontend
-  -&gt; Express session middleware
-  -&gt; auth middlewares
-  -&gt; admin route authorization
-  -&gt; form/workspace ownership checks
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart TD
+  subgraph Admin
+    adminBrowser["Admin browser"] --&gt; private["PrivateElement UX guard"]
+    private --&gt; session["Express session middleware"]
+    session --&gt; authMw["withUserAuthentication"]
+    authMw --&gt; adminRoutes["Admin routes"]
+    adminRoutes --&gt; permissions["form/workspace permission checks"]
+  end
 
-Respondent
-  -&gt; optional captcha/Turnstile
-  -&gt; optional SingPass/CorpPass/MyInfo/sgID
-  -&gt; optional intranet/IP/whitelist/domain restrictions
-  -&gt; public form route and submission validators</code></pre>
+  subgraph Respondent
+    respondent["Respondent"] --&gt; captcha["captcha or Turnstile"]
+    captcha --&gt; identity["optional SingPass, CorpPass, MyInfo, sgID"]
+    identity --&gt; restrictions["intranet, whitelist, domain restrictions"]
+    restrictions --&gt; publicRoutes["public form routes and validators"]
+  end
+
+  subgraph Machine
+    apiClient["Public API client"] --&gt; bearer["Bearer API key middleware"]
+    cron["Payment cron"] --&gt; cronSecret["cron secret header middleware"]
+  end</pre>
+        </div>
       </section>
 
       <section class="section-card">
@@ -738,16 +813,28 @@ Respondent
 
       <section class="section-card">
         <h2>Payment architecture</h2>
-        <pre class="diagram"><code>Admin configures payment settings
-  -&gt; admin-form payments routes and services
-  -&gt; Form model stores payment product/field/channel settings
+        <div class="mermaid-wrap">
+          <pre class="mermaid">sequenceDiagram
+  participant Admin
+  participant AdminUI as Admin frontend
+  participant Backend as Backend payments/admin-form
+  participant Mongo as MongoDB
+  participant User as Respondent
+  participant Stripe
+  participant Cron as Reconciliation cron
 
-Respondent submits payment form
-  -&gt; public form validates answers
-  -&gt; pending submission/payment record created
-  -&gt; Stripe checkout/payment flow
-  -&gt; backend payment notification or reconciliation confirms state
-  -&gt; final submission becomes available to admin</code></pre>
+  Admin-&gt;&gt;AdminUI: Configure payment settings
+  AdminUI-&gt;&gt;Backend: Save payment field/product/channel settings
+  Backend-&gt;&gt;Mongo: Persist Form payment config
+  User-&gt;&gt;Backend: Submit payment-enabled form
+  Backend-&gt;&gt;Mongo: Create pending submission and payment record
+  Backend-&gt;&gt;Stripe: Create/confirm payment intent
+  Stripe--&gt;&gt;Backend: Webhook notification
+  Backend-&gt;&gt;Mongo: Idempotently update payment and submission state
+  Cron-&gt;&gt;Backend: Reconcile incomplete payments
+  Backend-&gt;&gt;Stripe: Replay/check provider state
+  Backend-&gt;&gt;Mongo: Repair or cancel stale records</pre>
+        </div>
       </section>
 
       <section class="section-card">
@@ -850,65 +937,119 @@ Respondent submits payment form
 
       <section class="section-card">
         <h2>Encrypted storage submission</h2>
-        <pre class="diagram"><code>Respondent browser
-  -&gt; loads public form metadata
-  -&gt; validates and submits answers
-Backend public form routes
-  -&gt; validates form state, captcha/auth, fields, attachments, payment rules
-  -&gt; persists encrypted submission metadata/payload
-  -&gt; emits webhook if configured
-Admin browser
-  -&gt; loads encrypted responses
-  -&gt; captures secret key through useSecretKey
-  -&gt; Comlink decryption worker uses @opengovsg/formsg-sdk crypto
-  -&gt; renders table/detail/export</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">sequenceDiagram
+  participant Respondent
+  participant Frontend as Public form frontend
+  participant Backend as Backend public form routes
+  participant Mongo as MongoDB
+  participant Webhook as Webhook delivery
+  participant Admin as Admin responses UI
+  participant Worker as Decryption worker
+
+  Respondent-&gt;&gt;Frontend: Load public form
+  Frontend-&gt;&gt;Backend: GET /api/v3/forms/:formId
+  Backend--&gt;&gt;Frontend: Public form DTO and public key
+  Respondent-&gt;&gt;Frontend: Submit answers and attachments
+  Frontend-&gt;&gt;Backend: Encrypted payload and metadata
+  Backend-&gt;&gt;Backend: Validate captcha, auth, fields, attachments, payment rules
+  Backend-&gt;&gt;Mongo: Persist encrypted submission
+  Backend--&gt;&gt;Webhook: Emit signed webhook if configured
+  Admin-&gt;&gt;Backend: Request encrypted responses
+  Backend--&gt;&gt;Admin: Encrypted response stream
+  Admin-&gt;&gt;Worker: Secret key and encrypted payloads
+  Worker-&gt;&gt;Worker: Decrypt with FormSG SDK
+  Worker--&gt;&gt;Admin: Rows, details, exports</pre>
+        </div>
       </section>
 
       <section class="section-card">
         <h2>Multirespondent workflow (MRF)</h2>
-        <pre class="diagram"><code>Admin defines workflow steps
-  -&gt; shared workflow types and Form model persist assignments
-Respondent step 1 submits
-  -&gt; backend creates submission with workflow state
-  -&gt; next respondent receives link/notification
-Respondent step N opens link
-  -&gt; frontend extracts previous values
-  -&gt; augmentFieldWithMrfWorkflowDisabling locks earlier fields
-  -&gt; backend validates allowed step changes
-Final step
-  -&gt; final submission state is available to admins and webhooks</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">sequenceDiagram
+  participant Admin
+  participant Builder as Admin builder
+  participant Backend
+  participant Mongo as MongoDB
+  participant R1 as Respondent step 1
+  participant RN as Later respondent
+  participant Mail as Notification service
+
+  Admin-&gt;&gt;Builder: Define workflow steps and assignees
+  Builder-&gt;&gt;Backend: Save workflow configuration
+  Backend-&gt;&gt;Mongo: Persist form workflow
+  R1-&gt;&gt;Backend: Submit first workflow step
+  Backend-&gt;&gt;Mongo: Create submission with workflow state
+  Backend-&gt;&gt;Mail: Notify next respondent
+  RN-&gt;&gt;Backend: Open edit/status link
+  Backend--&gt;&gt;RN: Prior values and editable step data
+  RN-&gt;&gt;Backend: Submit allowed step changes
+  Backend-&gt;&gt;Backend: Validate workflow permissions and locked fields
+  Backend-&gt;&gt;Mongo: Advance workflow state
+  Backend--&gt;&gt;Admin: Final response available when workflow completes</pre>
+        </div>
       </section>
 
       <section class="section-card">
         <h2>Email-mode submission</h2>
-        <pre class="diagram"><code>Respondent submits email-mode form
-  -&gt; public-form submission route validates payload
-  -&gt; email submission service renders response email
-  -&gt; services/mail sends through SES/Maildev
-  -&gt; bounce notifications update bounce state
-  -&gt; admin sees delivery-related state and feedback through form modules</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">sequenceDiagram
+  participant Respondent
+  participant Backend as Public submission route
+  participant EmailService as Email submission service
+  participant Mail as services/mail
+  participant SES as SES or Maildev
+  participant Bounce as Bounce module
+  participant Admin
+
+  Respondent-&gt;&gt;Backend: Submit email-mode form
+  Backend-&gt;&gt;Backend: Validate payload and form rules
+  Backend-&gt;&gt;EmailService: Render response email and autoreply
+  EmailService-&gt;&gt;Mail: Send messages
+  Mail-&gt;&gt;SES: Deliver through SMTP/SES or Maildev
+  SES--&gt;&gt;Bounce: Bounce/complaint notification if delivery fails
+  Bounce-&gt;&gt;Admin: Surface delivery-related state and warnings</pre>
+        </div>
       </section>
 
       <section class="section-card">
         <h2>Payment flow</h2>
-        <pre class="diagram"><code>Public form submit
-  -&gt; create pending submission/payment record
-  -&gt; redirect or initialize Stripe payment
-Stripe event
-  -&gt; /api/v3/notifications/stripe verifies webhook
-  -&gt; payment/submission state updated idempotently
-Reconciliation service
-  -&gt; scheduled check repairs missed or inconsistent state
-  -&gt; cron-protected backend payment route finalizes decisions</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">sequenceDiagram
+  participant User as Respondent
+  participant Backend
+  participant Mongo as MongoDB
+  participant Stripe
+  participant Cron as Payment reconciliation service
+
+  User-&gt;&gt;Backend: Submit payment form
+  Backend-&gt;&gt;Mongo: Create pending submission and payment record
+  Backend-&gt;&gt;Stripe: Start payment intent
+  Stripe--&gt;&gt;Backend: POST /api/v3/notifications/stripe
+  Backend-&gt;&gt;Backend: Verify signature and event type
+  Backend-&gt;&gt;Mongo: Idempotently update payment/submission state
+  Cron-&gt;&gt;Backend: Call cron-protected reconcile routes
+  Backend-&gt;&gt;Stripe: Compare provider state
+  Backend-&gt;&gt;Mongo: Repair missed/inconsistent records</pre>
+        </div>
       </section>
 
       <section class="section-card">
         <h2>Verified fields</h2>
-        <pre class="diagram"><code>Respondent authenticates with trusted provider
-  -&gt; backend obtains trusted attributes
-  -&gt; verification module signs verified content
-  -&gt; public form stores verified values with signature material
-  -&gt; SDK/backend verification helpers check integrity before trust</code></pre>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">sequenceDiagram
+  participant Respondent
+  participant Provider as Trusted identity provider
+  participant Backend
+  participant Verification as verification module and SDK
+  participant Form as Public form submission
+
+  Respondent-&gt;&gt;Provider: Authenticate or verify field
+  Provider--&gt;&gt;Backend: Trusted attributes or OTP result
+  Backend-&gt;&gt;Verification: Sign verified content
+  Verification--&gt;&gt;Form: Verified value with signature material
+  Form-&gt;&gt;Verification: Verify signature before trusting value</pre>
+        </div>
       </section>
     `,
   },
@@ -1049,6 +1190,23 @@ Reconciliation service
 
       <section class="section-card">
         <h2>Workflow inventory</h2>
+        <div class="mermaid-wrap">
+          <pre class="mermaid">flowchart LR
+  pr["Pull request or push"] --&gt; filters["Path filters"]
+  filters --&gt; ci["ci.yml&lt;br/&gt;install, build, lint, tests"]
+  filters --&gt; pw["playwright.yml&lt;br/&gt;browser E2E"]
+  filters --&gt; chromatic["chromatic.yml&lt;br/&gt;visual regression"]
+  ci --&gt; review["Review and merge"]
+  pw --&gt; review
+  chromatic --&gt; review
+  release["Manual release.yml"] --&gt; version["commit-and-tag-version"]
+  version --&gt; image["build-release-image.yml"]
+  image --&gt; ecs["deploy-ecs*.yml"]
+  version --&gt; pdf["deploy-pdf-gen*.yml"]
+  version --&gt; scanner["deploy-virus-scanner-guardduty*.yml"]
+  version --&gt; sdk["publish-sdk.yml if SDK changed"]
+  ecs --&gt; runtime["ECS/CodeDeploy, S3 static assets, Datadog sourcemaps"]</pre>
+        </div>
         <table>
           <thead><tr><th>Workflow</th><th>Purpose</th></tr></thead>
           <tbody>
@@ -1584,6 +1742,21 @@ h3 { margin-top: 0; color: #172033; }
 .flow strong, .flow span { display: block; }
 .flow span { color: var(--muted); }
 .diagram { border: 1px solid #22304a; }
+.mermaid-wrap {
+  overflow-x: auto;
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+  padding: 1rem;
+}
+.mermaid {
+  min-width: 680px;
+  margin: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: center;
+}
 .checklist { list-style: none; padding-left: 0; }
 .checklist li { position: relative; padding-left: 1.7rem; }
 .checklist li::before { content: "OK"; position: absolute; left: 0; top: 0.1rem; border-radius: 5px; background: var(--green-soft); color: var(--green); padding: 0 0.25rem; font-size: 0.68rem; font-weight: 800; }
@@ -1697,6 +1870,25 @@ ${page.body}
       </div>
     </div>
     <script src="assets/wiki.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      if (window.mermaid) {
+        window.mermaid.initialize({
+          startOnLoad: true,
+          securityLevel: 'strict',
+          theme: 'base',
+          themeVariables: {
+            primaryColor: '#dbeafe',
+            primaryBorderColor: '#2563eb',
+            primaryTextColor: '#0f172a',
+            lineColor: '#64748b',
+            secondaryColor: '#ede9fe',
+            tertiaryColor: '#f8fafc',
+            fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+          }
+        })
+      }
+    </script>
   </body>
 </html>
 `
