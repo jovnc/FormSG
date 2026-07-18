@@ -10,15 +10,13 @@
 
 ## 📚 Documentation
 
-For comprehensive self-hosting guides, configuration references, and deployment instructions, visit our **[FormSG Self-Hosting Guide](https://ogp-international.gitbook.io/ogp-international-hub/self-hosting/formsg)**.
-
-The GitBook documentation is actively maintained and provides:
-
-- Deployment guides for AWS and other platforms
-- Configuration reference for all environment variables
-- Component customization guides
-- Legal and compliance requirements
-- Evaluation frameworks for decision makers
+| Resource | Contents |
+|----------|----------|
+| **[docs/architecture.md](docs/architecture.md)** | Monorepo layout, runtime topology, Storage/MRF pipelines, AWS & local infrastructure |
+| **[docs/features.md](docs/features.md)** | Field types, auth, payments, webhooks, multi-language, SDK |
+| **[docs/development.md](docs/development.md)** | Local setup, testing, CI/CD |
+| **[docs/](docs/README.md)** | Self-hosting evaluation, AWS deployment, config, security, compliance |
+| **[GitBook Self-Hosting Guide](https://ogp-international.gitbook.io/ogp-international-hub/self-hosting/formsg)** | Actively maintained deployment playbooks (prefer for production self-hosting steps) |
 
 ## Table of Contents
 
@@ -41,7 +39,6 @@ The GitBook documentation is actively maintained and provides:
     - [End-to-end tests](#end-to-end-tests)
     - [Cross-browser testing](#cross-browser-testing)
 - [Architecture](#architecture)
-- [MongoDB Scripts](#mongodb-scripts)
 - [Support](#support)
 - [Database Alternatives](#database-alternatives)
 - [Acknowledgements](#acknowledgements)
@@ -60,16 +57,21 @@ FormSG is a form builder application built, open sourced and maintained by the [
 
 Notable features include:
 
-- 19 different form field types, including attachments, tables, email and mobile
-- Verified email and mobile phone fields via integrations with Twilio and AWS SES
-- Automatic emailing of submissions for forms built with Email Mode
-- Encryption for data collected on forms built with Storage Mode
-- (Singapore government agencies only) Citizen authentication with [SingPass](https://www.singpass.gov.sg/singpass/common/aboutus)
+- 24 form field types (sections, statements, text, numbers, dropdowns, attachments, tables, NRIC/UEN, address, signature, MyInfo children fields, and more)
+- Verified email and mobile phone fields (OTP via SES mail and Postman SMS)
+- **Storage Mode** encryption for collected responses (admin holds the secret key; ciphertext stored server-side)
+- **Multi-respondent forms (MRF)** with workflows, field locking, reminders, and status tracking
+- Email Mode is legacy and being retired — migrate to Storage Mode
+- (Singapore government agencies only) Citizen authentication with [Singpass](https://www.singpass.gov.sg/singpass/common/aboutus)
 - (Singapore government agencies only) Citizen authentication with [sgID](https://www.id.gov.sg/)
 - (Singapore government agencies only) Corporate authentication with [CorpPass](https://www.corppass.gov.sg/corppass/common/aboutus)
 - (Singapore government agencies only) Automatic prefill of verified data with [MyInfo](https://www.singpass.gov.sg/myinfo/common/aboutus)
-- Webhooks functionality via the official [FormSG JavaScript SDK](./packages/sdk/README.md) (published as [`@opengovsg/formsg-sdk`](https://www.npmjs.com/package/@opengovsg/formsg-sdk) from [`packages/sdk`](./packages/sdk)) and contributor-supported [FormSG Ruby SDK](https://github.com/opengovsg/formsg-ruby-sdk)
-- Variable amount and Itemised payments on forms with [stripe](https://stripe.com) integration
+- Webhooks via the official [FormSG JavaScript SDK](./packages/sdk/README.md) (published as [`@opengovsg/formsg-sdk`](https://www.npmjs.com/package/@opengovsg/formsg-sdk) from [`packages/sdk`](./packages/sdk)) and contributor-supported [FormSG Ruby SDK](https://github.com/opengovsg/formsg-ruby-sdk)
+- Fixed, variable, and itemised payments with [Stripe](https://stripe.com)
+- Multi-language respondent forms (English, Chinese, Malay, Tamil)
+- Attachment malware scanning (AWS GuardDuty) and PDF generation Lambdas
+
+Full inventory: **[docs/features.md](docs/features.md)**.
 
 ## Local Development (Docker)
 
@@ -106,11 +108,10 @@ Run the following shell commands to build the Docker image. The first time will 
 
 This command runs:
 
-- backend server
-- frontend server
-- emulated serverless ClamAV (legacy) virus scanner function
-- emulated serverless GuardDuty virus scanner function
-- emulated serverless pdf generation function
+- backend server (Docker Compose, including MongoDB, MockPass, LocalStack, MailDev, Stripe CLI)
+- frontend server (Vite)
+- emulated GuardDuty virus scanner function
+- emulated PDF generation function
 
 ```bash
 pnpm dev
@@ -120,7 +121,7 @@ Alternatively, you can run required components independently - which is what the
 
 ```bash
 # Frontend server
-pnpm dev:frontend (frontend react server, compulsory)
+pnpm dev:frontend   # compulsory for UI work
 
 # Backend server
 docker compose up
@@ -128,9 +129,11 @@ docker compose up
 # PDF generation function (only needed if you're using features requiring PDF generation, eg, payment invoice/auto-reply PDF)
 pnpm dev:pdf-gen
 
-# Virus scanners - run both (only needed if you're uploading attachments)
+# Virus scanner (only needed if you're uploading attachments)
 pnpm dev:virus-scanner-guardduty
 ```
+
+More detail: **[docs/development.md](docs/development.md)**.
 
 After the Docker image has finished building, the following local applications can be accessed:
 
@@ -196,12 +199,12 @@ to follow the following local build guide to get tests running locally.
 
 The team uses macOS for development.
 
-Make you sure have the following node version & package manager on your machine:
+Make sure you have the following node version & package manager on your machine:
 
-- `"node": ">=22.12.0"`
+- `"node": ">=22.22"`
 - `"pnpm": ">=10.30.3"`
 - `"mongo": ">=4.0.0"`
-- Python 3.7+ (for LocalStack)
+- Python 3.7+ (for LocalStack, if installing outside Docker)
 
 Run
 
@@ -223,7 +226,7 @@ to install node modules and Localstack locally to be able to run tests. Note tha
 pnpm test
 ```
 
-will build the backend and run our backend unit tests. The tests are located at [`__tests__/unit/backend`](./__tests__/unit/backend).
+will run backend, shared, and frontend unit tests. Backend tests are colocated under [`apps/backend/src`](./apps/backend/src) (Jest). Frontend tests are colocated under [`apps/frontend/src`](./apps/frontend/src) (Vitest).
 
 For CI testing (optimized for continuous integration), you can run
 
@@ -231,7 +234,7 @@ For CI testing (optimized for continuous integration), you can run
 pnpm test:backend:ci
 ```
 
-Frontend tests are located at [`apps/frontend/__tests__`](./apps/frontend/__tests__). They can be run with
+Frontend tests:
 
 ```bash
 pnpm test:frontend
@@ -257,7 +260,7 @@ This project is tested with [BrowserStack](https://www.browserstack.com/open-sou
 
 ## Architecture
 
-The architecture overview is available in the [Self-Hosting Guide](https://ogp-international.gitbook.io/ogp-international-hub/self-hosting/formsg).
+See **[docs/architecture.md](docs/architecture.md)** for monorepo layout, APIs, submission pipelines, and infrastructure. Self-hosting deployment patterns are also covered in the [GitBook Self-Hosting Guide](https://ogp-international.gitbook.io/ogp-international-hub/self-hosting/formsg).
 
 ## Support
 
@@ -267,7 +270,7 @@ Please contact FormSG (support@form.gov.sg) for any details.
 
 FormSG uses MongoDB with Mongoose ODM. While the application can potentially be adapted to work with other databases, this requires significant code changes and is not officially supported.
 
-For detailed guidance on database migration options (including FerretDB, Prisma ORM, CockroachDB, and other alternatives), refer to the [Self-Hosting Guide](https://ogp-international.gitbook.io/ogp-international-hub/self-hosting/formsg).
+For detailed guidance on database migration options (including FerretDB, Prisma ORM, CockroachDB, and other alternatives), refer to the [Self-Hosting Guide](https://ogp-international.gitbook.io/ogp-international-hub/self-hosting/formsg) and [`docs/infrastructure-guidance.md`](docs/infrastructure-guidance.md).
 
 **Note**: Database migrations involve complex changes to the codebase and may require ongoing maintenance. Consider the trade-offs carefully before proceeding.
 

@@ -27,10 +27,19 @@ Whether you're:
 
 * [**GitBook**](https://ogp-international.gitbook.io/ogp-international-hub/self-hosting/formsg) - Complete, currently developed, self-hosting guide
 * [**FormSG GitHub Repository**](https://github.com/opengovsg/FormSG) - Source code and development resources
+* **Repository docs (this folder)** - Architecture, features, and contributor development guides kept next to the code
 
 {% hint style="info" %}
-**📖 Documentation Note**: While the repository contains a 'docs' folder, always refer to the [GitBook](https://ogp-international.gitbook.io/ogp-international-hub/self-hosting/formsg) for the most current self-hosting guidance. We plan to sync GitBook content to the repository periodically as snapshots, but currently the repository docs are not actively updated.
+**📖 Documentation Note**: For self-hosting deployment playbooks, prefer the [GitBook](https://ogp-international.gitbook.io/ogp-international-hub/self-hosting/formsg). Repository docs under `docs/` also include architecture, features, and local development references that track the monorepo. Where GitBook and repo docs diverge on deployment steps, treat GitBook as authoritative for self-hosting operations.
 {% endhint %}
+
+## Repository reference
+
+| Guide | Audience | Description |
+|-------|----------|-------------|
+| [architecture.md](architecture.md) | Engineers | Monorepo layout, runtime topology, submission pipelines, AWS/local infrastructure |
+| [features.md](features.md) | Engineers / evaluators | Field types, response modes, auth, payments, webhooks, i18n, SDK |
+| [development.md](development.md) | Contributors | Local setup, tests, CI/CD, containers |
 
 <details>
 
